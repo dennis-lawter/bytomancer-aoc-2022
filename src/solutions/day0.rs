@@ -1,17 +1,18 @@
-use crate::input::get_input_as_string;
+use super::final_answer;
+use super::input_raw;
 
-fn input_raw() -> String {
-    get_input_as_string("https://adventofcode.com/2021/day/00/input")
-}
+const DAY: u8 = 0;
 
 fn input() -> String {
-    input_raw()
+    input_raw(DAY)
 }
 
-pub fn d00s1() {
-    let _input = input();
+pub fn d00s1(submit: bool) {
+    let input = input();
+    final_answer(input.len(), submit, DAY, 1)
 }
 
-pub fn d00s2() {
-    let _input = input();
+pub fn d00s2(submit: bool) {
+    let input = input();
+    final_answer(input.len(), submit, DAY, 1)
 }
