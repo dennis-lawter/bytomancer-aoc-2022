@@ -3,8 +3,8 @@ use reqwest::Url;
 
 use crate::input::get_input_as_string;
 
-mod day0;
 pub mod day1;
+pub mod day2;
 
 pub fn input_raw(day: u8) -> String {
     let url = format!("https://adventofcode.com/2022/day/{}/input", day).to_string();
@@ -29,8 +29,7 @@ pub fn final_answer<T: std::fmt::Display>(answer: T, submit: bool, day: u8, leve
 
         if response.contains("day-success") {
             println!("{}", "Accepted!".bold().on_blue());
-        }
-        if response.contains("Did you already complete it?") {
+        } else if response.contains("Did you already complete it?") {
             println!("{}", "Solution already accepted...".bold().on_white());
         } else {
             println!("{}", "Innaccurate!".bold().on_bright_red());

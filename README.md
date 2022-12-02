@@ -33,12 +33,17 @@ I decided to add on a few features to ease development
    - A `.env` file is required with `SESSION=<Session ID from your cookie>`.
    - Files are downloaded to a `_cache/` folder created in the project root.
    - If an input file is already found locally, that file is loaded instead.
-2. Arguments dictate the solution to be run.
+2. Final submissions are sent automatically to the form.
+   - Using the same `.env` as above,
+     executing the program with the `-s` or `--submit`
+     option will send the result to the website's submission URL.
+   - The resulting page is scanned and outputs a result to the command line.
+3. Arguments dictate the solution to be run.
    - After discovering significant re-use between the days,
      I decided to package my code together in a single project.
    - Execution is performed with `cargo run -- dXsY`,
      representing day X solution Y.
-3. Colorization is used heavily.
+4. Colorization is used heavily.
    - Tracking outputs and debugging is much simpler,
      thanks to the `colored` crate.
 
@@ -47,5 +52,6 @@ I decided to add on a few features to ease development
 ```
       -------Part 1--------   -------Part 2--------
 Day       Time  Rank  Score       Time  Rank  Score
+  2   00:12:33  4442      0   00:16:11  2982      0
   1   00:15:44  7176      0   00:23:06  7379      0
 ```
