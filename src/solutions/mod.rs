@@ -1,10 +1,12 @@
 use colored::Colorize;
+use regex::Regex;
 use reqwest::Url;
 
 use crate::input::get_input_as_string;
 
 pub mod day1;
 pub mod day2;
+pub mod day2rev;
 
 pub fn input_raw(day: u8) -> String {
     let url = format!("https://adventofcode.com/2022/day/{}/input", day).to_string();
@@ -31,6 +33,24 @@ pub fn final_answer<T: std::fmt::Display>(answer: T, submit: bool, day: u8, leve
             println!("{}", "Accepted!".bold().on_blue());
         } else if response.contains("Did you already complete it?") {
             println!("{}", "Solution already accepted...".bold().on_white());
+        } else if response.contains("left to wait.") {
+            // You have 13s left to wait.
+            let time_capture_regex = Regex::new(r"You have (.+) left to wait.").unwrap();
+            let captures_result = time_capture_regex.captures(&response);
+            println!("{}", "    SLOW DOWN    ".bold().on_red());
+            match captures_result {
+                Some(captures) => {
+                    println!(
+                        "Please wait {}.",
+                        format!("{}", captures.get(1).unwrap().as_str().to_string())
+                            .bold()
+                            .on_red()
+                    );
+                }
+                None => {
+                    println!("Could not determine time before next submission...");
+                }
+            }
         } else {
             println!("{}", "Innaccurate!".bold().on_bright_red());
         }
