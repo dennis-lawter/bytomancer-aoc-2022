@@ -14,5 +14,5 @@ pub fn d00s1(submit: bool) {
 
 pub fn d00s2(submit: bool) {
     let input = input();
-    final_answer(input.len(), submit, DAY, 1)
+    final_answer(input.len(), submit, DAY, 2)
 }

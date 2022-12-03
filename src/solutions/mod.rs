@@ -7,6 +7,7 @@ use crate::input::get_input_as_string;
 pub mod day1;
 pub mod day2;
 pub mod day2rev;
+pub mod day3;
 
 pub fn input_raw(day: u8) -> String {
     let url = format!("https://adventofcode.com/2022/day/{}/input", day).to_string();
