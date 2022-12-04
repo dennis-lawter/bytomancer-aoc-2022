@@ -9,6 +9,7 @@ pub mod day2;
 pub mod day2rev;
 pub mod day3;
 pub mod day3rev;
+pub mod day4;
 
 pub fn input_raw(day: u8) -> String {
     let url = format!("https://adventofcode.com/2022/day/{}/input", day).to_string();
@@ -44,7 +45,7 @@ pub fn final_answer<T: std::fmt::Display>(answer: T, submit: bool, day: u8, leve
                 Some(captures) => {
                     println!(
                         "Please wait {}.",
-                        format!("{}", captures.get(1).unwrap().as_str().to_string())
+                        format!("{}", captures.get(1).unwrap().as_str())
                             .bold()
                             .on_red()
                     );
