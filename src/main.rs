@@ -31,16 +31,19 @@ fn main() {
         "d1s2" => solutions::day1::d1s2(submit),
         "d2s1" => solutions::day2::d2s1(submit),
         "d2s2" => solutions::day2::d2s2(submit),
-        "d2s1rev" => solutions::day2rev::d2s1rev(submit),
-        "d2s2rev" => solutions::day2rev::d2s2rev(submit),
         "d3s1" => solutions::day3::d3s1(submit),
         "d3s2" => solutions::day3::d3s2(submit),
-        "d3s1rev" => solutions::day3rev::d3s1rev(submit),
-        "d3s2rev" => solutions::day3rev::d3s2rev(submit),
         "d4s1" => solutions::day4::d4s1(submit),
         "d4s2" => solutions::day4::d4s2(submit),
         "d5s1" => solutions::day5::d5s1(submit),
         "d5s2" => solutions::day5::d5s2(submit),
+
+        "d2s1rev" => solutions::day2rev::d2s1rev(submit),
+        "d2s2rev" => solutions::day2rev::d2s2rev(submit),
+        "d3s1rev" => solutions::day3rev::d3s1rev(submit),
+        "d3s2rev" => solutions::day3rev::d3s2rev(submit),
+        "d5s1rev" => solutions::day5rev::d5s1rev(submit),
+        "d5s2rev" => solutions::day5rev::d5s2rev(submit),
         _ => {
             println!("Invalid argument.")
         }
