@@ -23,11 +23,11 @@ pub fn d4s1(submit: bool) {
         if l1 <= l2 && r1 >= r2 {
             // 1 contains 2
             count += 1;
-            println!("{}", token);
+            // println!("{}", token);
         } else if l2 <= l1 && r2 >= r1 {
             // 2 contains 1
             count += 1;
-            println!("{}", token);
+            // println!("{}", token);
         }
     }
     final_answer(count, submit, DAY, 1)
@@ -46,16 +46,16 @@ pub fn d4s2(submit: bool) {
         let r2 = str::parse::<u32>(captures.get(4).unwrap().as_str()).unwrap();
         if l1 >= l2 && l1 <= r2 {
             count += 1;
-            println!("{}", token);
+            // println!("{}", token);
         } else if r1 >= l2 && r1 <= r2 {
             count += 1;
-            println!("{}", token);
+            // println!("{}", token);
         } else if l2 >= l1 && l2 <= r1 {
             count += 1;
-            println!("{}", token);
+            // println!("{}", token);
         } else if r2 >= l1 && r2 <= r1 {
             count += 1;
-            println!("{}", token);
+            // println!("{}", token);
         }
     }
     final_answer(count, submit, DAY, 2)

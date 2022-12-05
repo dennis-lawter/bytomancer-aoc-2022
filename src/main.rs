@@ -39,6 +39,8 @@ fn main() {
         "d3s2rev" => solutions::day3rev::d3s2rev(submit),
         "d4s1" => solutions::day4::d4s1(submit),
         "d4s2" => solutions::day4::d4s2(submit),
+        "d5s1" => solutions::day5::d5s1(submit),
+        "d5s2" => solutions::day5::d5s2(submit),
         _ => {
             println!("Invalid argument.")
         }
