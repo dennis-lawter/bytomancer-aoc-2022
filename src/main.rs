@@ -42,12 +42,16 @@ fn main() {
         "d6s1" => solutions::day6::d6s1(submit),
         "d6s2" => solutions::day6::d6s2(submit),
 
+        // "d00s1rev" => solutions::day00rev::d00s1rev(submit),
+        // "d00s2rev" => solutions::day00rev::d00s2rev(submit),
         "d2s1rev" => solutions::day2rev::d2s1rev(submit),
         "d2s2rev" => solutions::day2rev::d2s2rev(submit),
         "d3s1rev" => solutions::day3rev::d3s1rev(submit),
         "d3s2rev" => solutions::day3rev::d3s2rev(submit),
         "d5s1rev" => solutions::day5rev::d5s1rev(submit),
         "d5s2rev" => solutions::day5rev::d5s2rev(submit),
+        "d6s1rev" => solutions::day6rev::d6s1rev(submit),
+        "d6s2rev" => solutions::day6rev::d6s2rev(submit),
         _ => {
             println!("Invalid argument.")
         }
