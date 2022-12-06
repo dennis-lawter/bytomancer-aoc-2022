@@ -1,7 +1,7 @@
 use super::final_answer;
 use super::input_raw;
 
-const DAY: u8 = 0;
+const DAY: u8 = 00;
 
 fn input() -> String {
     input_raw(DAY)

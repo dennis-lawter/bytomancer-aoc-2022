@@ -27,6 +27,8 @@ fn main() {
     use std::time::Instant;
     let now = Instant::now();
     match &func[..] {
+        // "d00s1" => solutions::day00::d00s1(submit),
+        // "d00s2" => solutions::day00::d00s2(submit),
         "d1s1" => solutions::day1::d1s1(submit),
         "d1s2" => solutions::day1::d1s2(submit),
         "d2s1" => solutions::day2::d2s1(submit),
@@ -37,6 +39,8 @@ fn main() {
         "d4s2" => solutions::day4::d4s2(submit),
         "d5s1" => solutions::day5::d5s1(submit),
         "d5s2" => solutions::day5::d5s2(submit),
+        "d6s1" => solutions::day6::d6s1(submit),
+        "d6s2" => solutions::day6::d6s2(submit),
 
         "d2s1rev" => solutions::day2rev::d2s1rev(submit),
         "d2s2rev" => solutions::day2rev::d2s2rev(submit),
