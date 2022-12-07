@@ -72,6 +72,8 @@ fn input() -> Box<ElfDir> {
         i += 1;
     }
 
+    println!("{}", root_dir);
+
     root_dir
 }
 
@@ -100,8 +102,13 @@ impl FromStr for Command {
 
 #[derive(Debug)]
 struct ElfFile {
-    pub _name: String,
+    pub name: String,
     pub size: usize,
+}
+impl fmt::Display for ElfFile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{: <8} {}", self.size, self.name)
+    }
 }
 
 #[derive(Debug)]
@@ -112,7 +119,7 @@ struct ElfDir {
 }
 impl fmt::Display for ElfDir {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "dir {}", self.name)
+        write!(f, "{}", format!("{}", self.to_string_with_depth(0)))
     }
 }
 impl ElfDir {
@@ -123,6 +130,18 @@ impl ElfDir {
             files: IndexMap::new(),
         }
     }
+    fn to_string_with_depth(&self, depth: usize) -> String {
+        let stripped_name = self.name.trim_end_matches("/");
+        let mut result = format!("{: <1$}{2}/", "", depth * 2, stripped_name);
+        for (_, child) in &self.dirs {
+            result = format!("{}\n{}", result, child.to_string_with_depth(depth + 1));
+        }
+        for (_, child) in &self.files {
+            result = format!("{2}\n{: <1$}{3}", "", (depth + 1) * 2, result, child);
+        }
+
+        result
+    }
     pub fn add_dir(&mut self, name: &str) {
         self.dirs
             .insert(name.to_string(), Box::new(Self::new(name)));
@@ -131,7 +150,7 @@ impl ElfDir {
         self.files.insert(
             name.to_string(),
             ElfFile {
-                _name: name.to_string(),
+                name: name.to_string(),
                 size,
             },
         );
