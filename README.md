@@ -1,8 +1,9 @@
 # Bytomancer's Advent Of Code 2022 Solutions
 
-## SPOILERS AHEAD
+## SPOILERS WITHIN
 
-By reading further, you will face spoilers for the Advent of Code 2022.
+By opening the `src/solutions` folder,
+you will face implementation spoilers for the Advent of Code 2022.
 If you wish to try the event for yourself,
 please visit https://www.adventofcode.com/
 
