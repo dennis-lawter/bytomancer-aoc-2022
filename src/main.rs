@@ -41,6 +41,8 @@ fn main() {
         "d5s2" => solutions::day5::d5s2(submit),
         "d6s1" => solutions::day6::d6s1(submit),
         "d6s2" => solutions::day6::d6s2(submit),
+        "d7s1" => solutions::day7::d7s1(submit),
+        "d7s2" => solutions::day7::d7s2(submit),
 
         // "d00s1rev" => solutions::day00rev::d00s1rev(submit),
         // "d00s2rev" => solutions::day00rev::d00s2rev(submit),
