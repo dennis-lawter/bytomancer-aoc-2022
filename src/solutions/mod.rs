@@ -4,6 +4,7 @@ use reqwest::Url;
 
 use crate::input::get_input_as_string;
 
+// solutions
 pub mod day1;
 pub mod day2;
 pub mod day3;
@@ -12,10 +13,14 @@ pub mod day5;
 pub mod day6;
 pub mod day7;
 
+// revisions
 pub mod day2rev;
 pub mod day3rev;
 pub mod day5rev;
 pub mod day6rev;
+
+// visualizations
+pub mod day7vis;
 
 pub fn input_raw(day: u8) -> String {
     let url = format!("https://adventofcode.com/2022/day/{}/input", day).to_string();

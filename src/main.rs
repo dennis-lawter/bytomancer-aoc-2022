@@ -27,6 +27,8 @@ fn main() {
     use std::time::Instant;
     let now = Instant::now();
     match &func[..] {
+        // INITIAL SOLUTIONS
+
         // "d00s1" => solutions::day00::d00s1(submit),
         // "d00s2" => solutions::day00::d00s2(submit),
         "d1s1" => solutions::day1::d1s1(submit),
@@ -44,6 +46,8 @@ fn main() {
         "d7s1" => solutions::day7::d7s1(submit),
         "d7s2" => solutions::day7::d7s2(submit),
 
+        // REVISED APPROACHES
+
         // "d00s1rev" => solutions::day00rev::d00s1rev(submit),
         // "d00s2rev" => solutions::day00rev::d00s2rev(submit),
         "d2s1rev" => solutions::day2rev::d2s1rev(submit),
@@ -54,14 +58,26 @@ fn main() {
         "d5s2rev" => solutions::day5rev::d5s2rev(submit),
         "d6s1rev" => solutions::day6rev::d6s1rev(submit),
         "d6s2rev" => solutions::day6rev::d6s2rev(submit),
-        _ => {
-            println!("Invalid argument.")
+
+        // VISUALIZATIONS
+
+        // "d00s1vis" => solutions::day00vis::d00s1vis(submit),
+        // "d00s2vis" => solutions::day00vis::d00s2vis(submit),
+        "d7s1vis" => solutions::day7vis::d7s1vis(submit),
+        "d7s2vis" => solutions::day7vis::d7s2vis(submit),
+
+        // ERR
+        invalid => {
+            println!(
+                "{}\n",
+                format!("Invalid argument: {}", invalid.bold()).on_red()
+            )
         }
     }
     println!(
         "{}\n",
         format!("Execution time: {:.2?}", now.elapsed())
-            .blink()
+            .black()
             .on_white()
     );
 }

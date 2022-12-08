@@ -1,5 +1,7 @@
 use core::fmt;
+use core::time;
 use std::str::FromStr;
+use std::thread;
 
 use colored::Colorize;
 use indexmap::IndexMap;
@@ -57,11 +59,16 @@ fn input() -> Box<ElfDir> {
                         }
                         peek = input[i + 1].clone();
                     }
+
+                    println!("\n\n");
+                    println!("{} {}/", line, pwd.join("/"));
+                    println!("{}", cur_dir);
+                    thread::sleep(time::Duration::from_millis(250));
                 }
                 Command::Cd => match arg {
                     "/" => {
                         pwd = Vec::new();
-                        pwd.push("/".to_string());
+                        pwd.push("".to_string());
                     }
                     ".." => {
                         pwd.pop();
@@ -77,6 +84,7 @@ fn input() -> Box<ElfDir> {
         i += 1;
     }
 
+    println!("\n\n\n\nFULL FILE SYSTEM:");
     println!("{}", root_dir);
 
     root_dir
@@ -243,7 +251,7 @@ fn get_dir<'a>(cur_dir: &'a mut Box<ElfDir>, path: &'a mut Vec<String>) -> &'a m
     }
 }
 
-pub fn d7s1(submit: bool) {
+pub fn d7s1vis(submit: bool) {
     let input = input();
 
     let flat_dir_refs = input.get_all_dirs_flat();
@@ -258,10 +266,10 @@ pub fn d7s1(submit: bool) {
     final_answer(small_dir_total, submit, DAY, 1);
 }
 
-const FS_SIZE: usize = 70_000_000;
-const FS_REQ: usize = 30_000_000;
+const FS_SIZE: usize = 70000000;
+const FS_REQ: usize = 30000000;
 
-pub fn d7s2(submit: bool) {
+pub fn d7s2vis(submit: bool) {
     let input = input();
 
     let flat_dir_refs = input.get_all_dirs_flat();
