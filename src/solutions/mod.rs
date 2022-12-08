@@ -22,6 +22,7 @@ pub mod day6rev;
 
 // visualizations
 pub mod day7vis;
+pub mod day8vis;
 
 pub fn input_raw(day: u8) -> String {
     let url = format!("https://adventofcode.com/2022/day/{}/input", day).to_string();
