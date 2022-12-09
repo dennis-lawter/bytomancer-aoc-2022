@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::f32::consts::E;
 use std::str::FromStr;
 
 use super::final_answer;
@@ -114,9 +113,6 @@ pub fn d9s1(submit: bool) {
             tail_positions.insert((tail.x, tail.y));
         }
     }
-    println!("Head: {} {}", head.x, head.y);
-    println!("Tail: {} {}", tail.x, tail.y);
-
     final_answer(tail_positions.len(), submit, DAY, 1);
 }
 
@@ -135,8 +131,5 @@ pub fn d9s2(submit: bool) {
             tail_positions.insert((nodes[9].x, nodes[9].y));
         }
     }
-    println!("Head: {} {}", nodes[0].x, nodes[0].y);
-    println!("Tail: {} {}", nodes[9].x, nodes[9].y);
-
     final_answer(tail_positions.len(), submit, DAY, 2);
 }

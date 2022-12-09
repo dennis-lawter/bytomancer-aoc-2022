@@ -71,6 +71,8 @@ fn main() {
         "d7s2vis" => solutions::day7vis::d7s2vis(submit),
         "d8s1vis" => solutions::day8vis::d8s1vis(submit),
         "d8s2vis" => solutions::day8vis::d8s2vis(submit),
+        "d9s1vis" => solutions::day9vis::d9s1vis(submit),
+        "d9s2vis" => solutions::day9vis::d9s2vis(submit),
 
         // ERR
         invalid => {
