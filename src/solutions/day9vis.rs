@@ -111,18 +111,6 @@ fn input() -> Vec<Command> {
     results
 }
 
-// fn get_bounds() {
-//     let input = input();
-//     let mut head = Coord::new(0, 0);
-//     let mut head_positions: HashSet<(i64, i64)> = HashSet::new();
-//     for command in input {
-//         for _ in 0..command.steps {
-//             head.take_step(command.direction.clone());
-//             head_positions.insert((head.x, head.y));
-//         }
-//     }
-// }
-
 pub fn d9s1vis(submit: bool) {
     let input = input();
     let mut head = Coord::new(0, 0);
@@ -135,37 +123,13 @@ pub fn d9s1vis(submit: bool) {
 
             let _inserted_new = tail_positions.insert((tail.x, tail.y));
             {
-                // let mut x_min = 0;
-                // let mut y_min = 0;
-                // let mut x_max = 0;
-                // let mut y_max = 0;
-
-                // for pos in &tail_positions {
-                //     if pos.0 > x_max {
-                //         x_max = pos.0;
-                //     }
-                //     if pos.0 < x_min {
-                //         x_min = pos.0;
-                //     }
-                //     if pos.1 > y_max {
-                //         y_max = pos.1;
-                //     }
-                //     if pos.1 < y_min {
-                //         y_min = pos.1;
-                //     }
-                // }
-                // let window_radius = 10;
                 let window_size = crossterm::terminal::size().unwrap();
                 let x_min = head.x - ((window_size.0 - 0) / 4) as i64;
                 let y_min = head.y - ((window_size.1 - 0) / 2) as i64;
                 let x_max = head.x + ((window_size.0 - 0) / 4) as i64;
                 let y_max = head.y + ((window_size.1 - 0) / 2) as i64;
 
-                // println!("Tail is at {}, {}", tail.x, tail.y);
-
                 let mut stdout = stdout();
-                let cursor = cursor::position().unwrap();
-                let mut buffer = "".to_owned();
                 stdout
                     .execute(terminal::Clear(terminal::ClearType::All))
                     .unwrap();
@@ -185,7 +149,6 @@ pub fn d9s1vis(submit: bool) {
                             print_character = "　".to_owned();
                         }
                         if x == 0 || y == 0 {
-                            // buffer = format!("{}{}", buffer, print_character.on_white());
                             stdout
                                 .queue(style::Print(print_character.on_white()))
                                 .unwrap();
@@ -193,59 +156,13 @@ pub fn d9s1vis(submit: bool) {
                             stdout.queue(style::Print(print_character)).unwrap();
                         }
                     }
-                    // format!("{}\n", buffer);
                     stdout.queue(style::Print("\n")).unwrap();
                 }
-                // format!("{}\n\n", buffer);
 
                 stdout.flush().unwrap();
                 thread::sleep(time::Duration::from_millis(100));
             }
         }
-    }
-    println!("Head: {} {}", head.x, head.y);
-    println!("Tail: {} {}", tail.x, tail.y);
-
-    let mut x_min = 0;
-    let mut y_min = 0;
-    let mut x_max = 0;
-    let mut y_max = 0;
-
-    for pos in &tail_positions {
-        if pos.0 > x_max {
-            x_max = pos.0;
-        }
-        if pos.0 < x_min {
-            x_min = pos.0;
-        }
-        if pos.1 > y_max {
-            y_max = pos.1;
-        }
-        if pos.1 < y_min {
-            y_min = pos.1;
-        }
-    }
-
-    println!("Tail is at {}, {}", tail.x, tail.y);
-
-    for y in y_min - 1..y_max + 1 {
-        for x in x_min - 1..x_max + 1 {
-            let test_pos = (x, y);
-            let print_character: String;
-            if test_pos == (tail.x, tail.y) {
-                print_character = "🧝".to_owned();
-            } else if tail_positions.contains(&test_pos) {
-                print_character = "👣".to_owned();
-            } else {
-                print_character = "　".to_owned();
-            }
-            if x == 0 || y == 0 {
-                print!("{}", print_character.on_blue());
-            } else {
-                print!("{}", print_character);
-            }
-        }
-        println!();
     }
 
     final_answer(tail_positions.len(), submit, DAY, 1);
@@ -266,37 +183,13 @@ pub fn d9s2vis(submit: bool) {
             tail_positions.insert((nodes[9].x, nodes[9].y));
 
             {
-                // let mut x_min = 0;
-                // let mut y_min = 0;
-                // let mut x_max = 0;
-                // let mut y_max = 0;
-
-                // for pos in &tail_positions {
-                //     if pos.0 > x_max {
-                //         x_max = pos.0;
-                //     }
-                //     if pos.0 < x_min {
-                //         x_min = pos.0;
-                //     }
-                //     if pos.1 > y_max {
-                //         y_max = pos.1;
-                //     }
-                //     if pos.1 < y_min {
-                //         y_min = pos.1;
-                //     }
-                // }
-                // let window_radius = 10;
                 let window_size = crossterm::terminal::size().unwrap();
                 let x_min = nodes[0].x - ((window_size.0 - 0) / 4) as i64;
                 let y_min = nodes[0].y - ((window_size.1 - 0) / 2) as i64;
                 let x_max = nodes[0].x + ((window_size.0 - 0) / 4) as i64;
                 let y_max = nodes[0].y + ((window_size.1 - 0) / 2) as i64;
 
-                // println!("Tail is at {}, {}", tail.x, tail.y);
-
                 let mut stdout = stdout();
-                let cursor = cursor::position().unwrap();
-                let mut buffer = "".to_owned();
                 stdout
                     .execute(terminal::Clear(terminal::ClearType::All))
                     .unwrap();
@@ -326,7 +219,6 @@ pub fn d9s2vis(submit: bool) {
                             print_character = "　".to_owned();
                         }
                         if x == 0 || y == 0 {
-                            // buffer = format!("{}{}", buffer, print_character.on_white());
                             stdout
                                 .queue(style::Print(print_character.on_white()))
                                 .unwrap();
@@ -334,18 +226,12 @@ pub fn d9s2vis(submit: bool) {
                             stdout.queue(style::Print(print_character)).unwrap();
                         }
                     }
-                    // format!("{}\n", buffer);
                     stdout.queue(style::Print("\n")).unwrap();
                 }
-                // format!("{}\n\n", buffer);
-
-                // stdout.flush().unwrap();
                 thread::sleep(time::Duration::from_millis(100));
             }
         }
     }
-    println!("Head: {} {}", nodes[0].x, nodes[0].y);
-    println!("Tail: {} {}", nodes[9].x, nodes[9].y);
 
     final_answer(tail_positions.len(), submit, DAY, 2);
 }
