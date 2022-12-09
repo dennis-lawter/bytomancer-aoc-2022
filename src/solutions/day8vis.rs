@@ -57,7 +57,7 @@ fn print_treehouse(tree_map: &mut TreeMap, house_x: usize, house_y: usize) {
             let full_number = number_list[num];
             if x == house_x && y == house_y {
                 // print!("{}", "🏡");
-                print!("{}", format!("{}", full_number).on_white().black().bold());
+                print!("{}", format!("{}", full_number).on_green().black().bold());
             } else {
                 if tree_map.get_visible(x, y) {
                     print!("{}", format!("{}", full_number).on_red().black());
