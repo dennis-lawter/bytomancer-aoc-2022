@@ -53,6 +53,8 @@ fn main() {
         "d10s2" => solutions::day10::d10s2(submit),
         "d11s1" => solutions::day11::d11s1(submit),
         "d11s2" => solutions::day11::d11s2(submit),
+        "d12s1" => solutions::day12::d12s1(submit),
+        "d12s2" => solutions::day12::d12s2(submit),
 
         // REVISED APPROACHES
 
