@@ -53,7 +53,7 @@ fn input() -> Board {
     }
 }
 
-fn bfs_depth_flat_with_heuristic(root_nodes: Vec<(usize, usize)>, board: &mut Board) -> usize {
+fn bfs(root_nodes: Vec<(usize, usize)>, board: &mut Board) -> usize {
     let mut depth = 0usize;
     let mut nodes = root_nodes.clone();
     loop {
@@ -116,7 +116,7 @@ pub fn d12s1(submit: bool) {
 
     let tree = vec![board.starting_pos];
 
-    let depth = bfs_depth_flat_with_heuristic(tree, &mut board);
+    let depth = bfs(tree, &mut board);
 
     final_answer(depth, submit, DAY, 1);
 }
@@ -133,7 +133,7 @@ pub fn d12s2(submit: bool) {
         }
     }
 
-    let depth = bfs_depth_flat_with_heuristic(tree, &mut board);
+    let depth = bfs(tree, &mut board);
 
     final_answer(depth, submit, DAY, 2);
 }
