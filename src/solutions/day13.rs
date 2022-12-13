@@ -85,6 +85,8 @@ fn string_pair_to_branch_pair(pair: &StringPair) -> BranchPair {
 }
 
 fn char_vector_to_branch(input_chars: &Vec<char>, i: &mut usize) -> Branch {
+    const NUMERALS: [char; 10] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
     let mut list: Vec<Branch> = Vec::new();
     let mut buffer: Vec<char> = Vec::new();
 
@@ -112,53 +114,15 @@ fn char_vector_to_branch(input_chars: &Vec<char>, i: &mut usize) -> Branch {
                 }
                 return Branch::List(list);
             }
-            // '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
-            //     buffer.push(input_chars[*i]);
-            // }
-            // invalid => {
-            //     panic!("What is this? {}", invalid);
-            // }
             numeral => {
+                assert!(NUMERALS.contains(&numeral));
                 buffer.push(numeral);
             }
         }
     }
 }
 
-// fn string_to_branch(input: String) -> Branch {
-//     if input.starts_with("[") {
-//         let inner: Vec<Branch> = Vec::new();
-//         Branch::List(inner)
-//     } else if input.starts_with("[") || input.ends_with("]") {
-//         panic!("invalid state in string_to_branch: {}", input);
-//     } else if input == "" {
-//         Branch::None
-//     } else {
-//         Branch::Numeral(str::parse::<u8>(input.as_str()).unwrap())
-//     }
-// }
-
-// fn branch_comparison(left: String, right: String) -> bool {
-//     if left.starts_with("[") && right.starts_with("[") {
-//         // do a list comparison...somehow
-//         false //todo
-//     } else if left.starts_with("[") && right.starts_with("]") {
-//         true
-//     } else if left.starts_with("[") {
-//         // wrap the right in []s and go deeper
-//         false //todo
-//     } else if right.starts_with("[") && left.contains("]") {
-//         false
-//     } else if right.starts_with("[") {
-//         // wrap the left in []s and go deeper
-//         false //todo
-//     } else {
-//         // simply compare 2 numbers
-//         // let left = str::parse::<u64>()
-//         false
-//     }
-// }
-
+#[derive(PartialEq)]
 enum BranchCmp {
     Less,
     Equal,
@@ -196,7 +160,7 @@ fn branch_comparison(left: &Branch, right: &Branch, debug_print: bool) -> Branch
                             BranchCmp::Greater => {
                                 return BranchCmp::Greater;
                             }
-                            _ => {
+                            BranchCmp::Equal => {
                                 // continue traversing the lists
                             }
                         }
@@ -258,7 +222,7 @@ pub fn d13s1(submit: bool) {
                 println!("EQUAL");
                 ordered_indices.push(index);
             }
-            _ => {
+            BranchCmp::Greater => {
                 println!("LARGER");
             }
         }
@@ -270,8 +234,6 @@ pub fn d13s1(submit: bool) {
 
 pub fn d13s2(submit: bool) {
     let packets = input_as_packets();
-    // packets.push("[[2]]".to_owned());
-    // packets.push("[[6]]".to_owned());
 
     let first_divider = string_to_branch("[[2]]".to_owned());
     let second_divider = string_to_branch("[[6]]".to_owned());
@@ -284,21 +246,13 @@ pub fn d13s2(submit: bool) {
     }
     branches.sort();
     let mut decoder_keys: Vec<usize> = Vec::with_capacity(2);
-    println!("\n\n\n\n");
     for i in 0..branches.len() {
         let index = i + 1;
         println!("{}\n", branches[i]);
-        match branch_comparison(&branches[i], &first_divider, false) {
-            BranchCmp::Equal => {
-                decoder_keys.push(index);
-            }
-            _ => {}
-        }
-        match branch_comparison(&branches[i], &second_divider, false) {
-            BranchCmp::Equal => {
-                decoder_keys.push(index);
-            }
-            _ => {}
+        if branch_comparison(&branches[i], &first_divider, false) == BranchCmp::Equal {
+            decoder_keys.push(index);
+        } else if branch_comparison(&branches[i], &second_divider, false) == BranchCmp::Equal {
+            decoder_keys.push(index);
         }
     }
     final_answer(decoder_keys[0] * decoder_keys[1], submit, DAY, 2);
