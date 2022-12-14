@@ -28,6 +28,7 @@ pub mod day6rev;
 
 // visualizations
 pub mod day12vis;
+pub mod day14vis;
 pub mod day7vis;
 pub mod day8vis;
 pub mod day9vis;

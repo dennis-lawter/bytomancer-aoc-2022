@@ -8,12 +8,6 @@ const DAY: u8 = 14;
 #[derive(Eq, Hash, PartialEq)]
 struct Point(u32, u32);
 
-// enum Material {
-//     Stone,
-//     Sand,
-//     Air,
-// }
-
 fn input() -> Vec<Vec<Point>> {
     let raw = input_raw(DAY);
     let mut result = Vec::with_capacity(raw.len());
@@ -39,24 +33,15 @@ pub fn d14s1(submit: bool) {
 
     const DROP_POINT: Point = Point(500, 0);
 
-    let mut x_min = 500u32;
-    let mut x_max = 500u32;
     let mut y_max = 0u32;
 
     for rock in &rocks {
         for point in rock {
-            if point.0 < x_min {
-                x_min = point.0;
-            } else if point.0 > x_max {
-                x_max = point.0;
-            }
             if point.1 > y_max {
                 y_max = point.1;
             }
         }
     }
-    x_min -= 1;
-    x_max += 1;
     y_max += 1;
 
     let mut stone_locations: HashSet<Point> = HashSet::new();
@@ -91,10 +76,7 @@ pub fn d14s1(submit: bool) {
     'falling_sand_game: loop {
         let mut new_sand_grain = Point(DROP_POINT.0, DROP_POINT.1);
         'falling_sand_grain: loop {
-            if (new_sand_grain.0 <= x_min)
-                || (new_sand_grain.0 >= x_max)
-                || (new_sand_grain.1 > y_max)
-            {
+            if new_sand_grain.1 > y_max {
                 // The sand has left the playing field
                 break 'falling_sand_game;
             }
@@ -123,24 +105,15 @@ pub fn d14s2(submit: bool) {
 
     const DROP_POINT: Point = Point(500, 0);
 
-    let mut x_min = 500u32;
-    let mut x_max = 500u32;
     let mut y_max = 0u32;
 
     for rock in &rocks {
         for point in rock {
-            if point.0 < x_min {
-                x_min = point.0;
-            } else if point.0 > x_max {
-                x_max = point.0;
-            }
             if point.1 > y_max {
                 y_max = point.1;
             }
         }
     }
-    x_min -= 1;
-    x_max += 1;
     y_max += 1;
 
     let mut stone_locations: HashSet<Point> = HashSet::new();
