@@ -1,5 +1,5 @@
-use std::cmp::max;
-use std::cmp::min;
+// use std::cmp::max;
+// use std::cmp::min;
 use std::collections::VecDeque;
 use std::ops::Range;
 
@@ -40,10 +40,6 @@ impl Sensor {
     }
     fn ys_covered_in_x_line(&self, y: i64) -> Option<Range<i64>> {
         let distance_from_y_to_sensor = (y - self.0 .1).abs();
-        // println!(
-        //     "{} - {} -> y offset: {}",
-        //     y, self.0 .1, distance_from_y_to_sensor
-        // );
         let distance = self.distance_sensed();
         let area_affected = distance - distance_from_y_to_sensor;
         if area_affected < 0 {
@@ -75,28 +71,13 @@ fn sample(input: &Vec<Sensor>, y: i64, max: i64) -> Option<i64> {
         let ys_covered = sensor.ys_covered_in_x_line(y);
         match ys_covered {
             None => {
-                // println!(
-                //     "Sensor at {}, {} is irrelevent due to range {}",
-                //     sensor.0 .0,
-                //     sensor.0 .1,
-                //     sensor.distance_sensed()
-                // );
                 continue;
             }
             Some(new_range) => {
-                // println!(
-                //     "Sensor at {}, {} has range {}",
-                //     sensor.0 .0,
-                //     sensor.0 .1,
-                //     sensor.distance_sensed()
-                // );
                 insert_range_into_list(&mut stored_ranges, new_range);
-                // stored_ranges.push_back(new_range);
             }
         }
     }
-    // println!("\n\n");
-    // println!("Clean up round");
     for _ in 0..stored_ranges.len() {
         let range_result = stored_ranges.pop_front();
         match range_result {
@@ -106,20 +87,19 @@ fn sample(input: &Vec<Sensor>, y: i64, max: i64) -> Option<i64> {
             None => {}
         }
     }
-    for range in &stored_ranges {
-        // println!("FINAL RANGE: {:?}", range);
-    }
     if stored_ranges[0].start < 0 && stored_ranges[0].end > max {
-        println!("\n\n");
-        println!("NOTHING FOR Y={}", y);
+        // println!("\n\n");
+        // println!("NOTHING FOR Y={}", y);
         return None;
     }
-    for x in 0..max {
+    for mut x in 0..max {
         let mut found = false;
         for range in &stored_ranges {
             if range.contains(&x) || range.end == x {
                 found = true;
                 break;
+            } else {
+                x = range.end;
             }
         }
         if !found {
@@ -132,10 +112,8 @@ fn sample(input: &Vec<Sensor>, y: i64, max: i64) -> Option<i64> {
 }
 
 fn insert_range_into_list(list: &mut VecDeque<Range<i64>>, new_range: Range<i64>) {
-    // println!("Trying {} .. {}", &new_range.start, &new_range.end);
     for _ in 0..list.len() {
         let mut stored_range = list.pop_front().unwrap();
-        // println!("Testing {} .. {}", &stored_range.start, &stored_range.end);
         let mut range_mutated: bool = false;
         if new_range.contains(&stored_range.start)
             || stored_range.contains(&new_range.start)
@@ -148,16 +126,9 @@ fn insert_range_into_list(list: &mut VecDeque<Range<i64>>, new_range: Range<i64>
             if new_range.end > stored_range.end {
                 stored_range.end = new_range.end;
             }
-            // stored_range.start = min(new_range.start, stored_range.start);
-            // println!(
-            //     "Mutated storaged_range to {} .. {}",
-            //     stored_range.start, stored_range.end
-            // );
             range_mutated = true;
         }
-        if range_mutated {
-            // println!("MERGED {} .. {}", &stored_range.start, &stored_range.end);
-        }
+        if range_mutated {}
         list.push_back(stored_range);
         if range_mutated {
             return;
@@ -176,28 +147,13 @@ pub fn d15s1(submit: bool) {
         let ys_covered = sensor.ys_covered_in_x_line(Y_CHECKED);
         match ys_covered {
             None => {
-                // println!(
-                //     "Sensor at {}, {} is irrelevent due to range {}",
-                //     sensor.0 .0,
-                //     sensor.0 .1,
-                //     sensor.distance_sensed()
-                // );
                 continue;
             }
             Some(new_range) => {
-                // println!(
-                //     "Sensor at {}, {} has range {}",
-                //     sensor.0 .0,
-                //     sensor.0 .1,
-                //     sensor.distance_sensed()
-                // );
                 insert_range_into_list(&mut stored_ranges, new_range);
-                // stored_ranges.push_back(new_range);
             }
         }
     }
-    // println!("\n\n");
-    // println!("Clean up round");
     for _ in 0..stored_ranges.len() {
         let range_result = stored_ranges.pop_front();
         match range_result {
@@ -207,33 +163,10 @@ pub fn d15s1(submit: bool) {
             None => {}
         }
     }
-    // println!("\n\n");
     let mut covered_positions = 0i64;
     for stored_range in stored_ranges {
         covered_positions += stored_range.end - stored_range.start;
-        // println!(
-        // "ADDING {} .. {} ({}), running total now {}",
-        // stored_range.start,
-        // stored_range.end,
-        // stored_range.end - stored_range.start,
-        // covered_positions
-        // );
     }
-
-    // for i in 0..stored_ranges.len() {
-    //     for j in 0..stored_ranges.len() {
-    //         let left = stored_ranges[i];
-    //         let right = stored_ranges[j];
-    //         let overlap: Range<i64>;
-    //         if new_range.contains(&stored_range.start) || stored_range.contains(&new_range.start) {
-    //             stored_range.start = min(y_range.start, stored_range.start);
-    //         }
-    //         if y_range.contains(&stored_range.end) || stored_range.contains(&y_range.end) {
-    //             stored_range.end = min(y_range.end, stored_range.end);
-    //         }
-    //         stored_ranges.push_back(stored_range);
-    //     }
-    // }
     final_answer(covered_positions, submit, DAY, 1);
 }
 
@@ -253,7 +186,7 @@ pub fn d15s2(submit: bool) {
         }
     }
     let saved_pos_found = saved_pos.unwrap();
-    // println!("{},{}", saved_pos_found.0, saved_pos_found.1);
+    println!("{},{}", saved_pos_found.0, saved_pos_found.1);
     let answer = saved_pos_found.0 * 4000000 + saved_pos_found.1;
     final_answer(answer, submit, DAY, 2);
 }
