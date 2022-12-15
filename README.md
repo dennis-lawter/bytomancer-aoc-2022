@@ -53,6 +53,7 @@ I decided to add on a few features to ease development
 ```
       --------Part 1--------   --------Part 2--------
 Day       Time   Rank  Score       Time   Rank  Score
+ 15   02:34:50   7838      0   03:16:11   5141      0
  14   00:53:14   4049      0   01:00:03   3450      0
  13   02:07:20   7273      0   02:59:35   8144      0
  12   03:28:22  10290      0   04:03:45  10663      0
@@ -68,3 +69,6 @@ Day       Time   Rank  Score       Time   Rank  Score
   2   00:12:33   4442      0   00:16:11   2982      0
   1   00:15:44   7176      0   00:23:06   7379      0
 ```
+
+On day 4 I went to bed early so I missesd the reveal.
+The rest I've begun at the reveal time.
