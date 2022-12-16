@@ -65,17 +65,21 @@ fn input() -> (HashMap<String, Valve>, String) {
 enum Choice {
     Open(String),
     MoveTo(String),
-    None,
 }
 
 struct ChoiceNode {
     valves_open: HashSet<String>,
-    current_location: String,
     choices: Vec<Choice>,
+    flow_rate: u64,
     total_pressure: u64,
 }
 impl ChoiceNode {
-    fn new(valves_open: HashSet<String>, valve: &Valve, total_pressure: u64) -> Self {
+    fn new(
+        valves_open: HashSet<String>,
+        valve: &Valve,
+        flow_rate: u64,
+        total_pressure: u64,
+    ) -> Self {
         let mut choices: Vec<Choice> = Vec::new();
         let current_location = valve.name.clone();
         if !valves_open.contains(&current_location) {
@@ -86,39 +90,33 @@ impl ChoiceNode {
         for tunnel in valve.tunnels_to.iter() {
             choices.push(Choice::MoveTo(tunnel.clone()));
         }
-        // You may always choose to do nothing.
-        choices.push(Choice::None);
+        let total_pressure = total_pressure + flow_rate;
 
         Self {
             valves_open,
-            current_location,
             choices,
+            flow_rate,
             total_pressure,
         }
     }
-    fn get_total_flow(&self, valve_list: &HashMap<String, Valve>) -> u64 {
-        let mut total = 0u64;
-        for open_valve in &self.valves_open {
-            let valve = valve_list.get(open_valve).unwrap();
-            total += valve.flow_rate;
-        }
+    // fn get_total_flow(&self, valve_list: &HashMap<String, Valve>) -> u64 {
+    //     let mut total = 0u64;
+    //     for open_valve in &self.valves_open {
+    //         let valve = valve_list.get(open_valve).unwrap();
+    //         total += valve.flow_rate;
+    //     }
 
-        total
-    }
+    //     total
+    // }
 }
 
 struct ChoiceTree {
     depth: usize,
     node: ChoiceNode,
-    // branches: Vec<ChoiceNode>,
 }
 impl ChoiceTree {
     fn new(depth: usize, node: ChoiceNode) -> Self {
-        Self {
-            depth,
-            node,
-            // branches,
-        }
+        Self { depth, node }
     }
 }
 
@@ -141,13 +139,13 @@ fn find_the_most_pressure(
             Choice::Open(open_me) => {
                 let current_valve = valve_list.get(open_me).unwrap();
                 let mut new_valves_open = tree.node.valves_open.clone();
-                let flow_rate = tree.node.get_total_flow(valve_list);
-                // TODO: the flow rate needs incremented by the new valve
                 new_valves_open.insert(open_me.clone());
+                let flow_rate = tree.node.flow_rate + current_valve.flow_rate;
                 let new_node = ChoiceNode::new(
                     new_valves_open,
                     current_valve,
-                    tree.node.total_pressure + flow_rate,
+                    flow_rate,
+                    tree.node.total_pressure,
                 );
                 let mut new_tree_node = ChoiceTree::new(tree.depth + 1, new_node);
                 let new_pressure =
@@ -158,11 +156,12 @@ fn find_the_most_pressure(
             }
             Choice::MoveTo(move_to_me) => {
                 let move_to_valve = valve_list.get(move_to_me).unwrap();
-                let flow_rate = tree.node.get_total_flow(valve_list);
+                let flow_rate = tree.node.flow_rate;
                 let new_node = ChoiceNode::new(
                     tree.node.valves_open.clone(),
                     move_to_valve,
-                    tree.node.total_pressure + flow_rate,
+                    flow_rate,
+                    tree.node.total_pressure,
                 );
                 let mut new_tree_node = ChoiceTree::new(tree.depth + 1, new_node);
                 let new_pressure =
@@ -170,27 +169,6 @@ fn find_the_most_pressure(
                 if new_pressure > highest_pressure_seen {
                     highest_pressure_seen = new_pressure;
                 }
-            }
-            Choice::None => {
-                // let move_to_valve = valve_list.get(move_to_me).unwrap();
-                // let flow_rate = tree.node.get_total_flow(valve_list);
-                // let new_node = ChoiceNode::new(
-                //     tree.node.valves_open.clone(),
-                //     move_to_valve,
-                //     tree.node.total_pressure + flow_rate,
-                // );
-                // let mut new_tree_node = ChoiceTree::new(tree.depth + 1, new_node);
-                // let new_pressure =
-                //     find_the_most_pressure(max_depth, &mut new_tree_node, valve_list);
-                // if new_pressure > highest_pressure_seen {
-                //     highest_pressure_seen = new_pressure;
-                // }
-
-                // This is a strange consideration,
-                // but if we ever get here,
-                // a MoveTo will accomplish the same thing...
-                // return 0;
-                continue;
             }
         }
     }
@@ -201,20 +179,10 @@ fn find_the_most_pressure(
 pub fn d16s1(submit: bool) {
     let (input, first_name) = input();
     let first_valve = input.get(&first_name).unwrap();
-    let root_node = ChoiceNode::new(HashSet::new(), first_valve, 0);
+    let root_node = ChoiceNode::new(HashSet::new(), first_valve, 0, 0);
     let mut tree_root = ChoiceTree::new(0usize, root_node);
     let answer = find_the_most_pressure(30, &mut tree_root, &input);
-    // for minute in 1..=30 {
-    //     let leaves = tree_root
-    //     for depth in 0..minute {
-
-    //     }
-    // }
-    // let valves_open =
     final_answer(answer, submit, DAY, 1);
 }
 
-pub fn d16s2(_submit: bool) {
-    // let (input, first_name) = input();
-    // final_answer(input.len(), submit, DAY, 2);
-}
+pub fn d16s2(_submit: bool) {}
