@@ -61,75 +61,6 @@ fn input() -> (HashMap<String, Valve>, String) {
     (result, first_name.unwrap())
 }
 
-// #[derive(Debug)]
-// enum Choice {
-//     Open(String),
-//     MoveTo(String),
-// }
-
-// #[derive(Clone)]
-// struct ChoiceNode {
-//     valves_open: HashSet<String>,
-//     choices: Vec<Choice>,
-//     flow_rate: u64,
-//     total_pressure: u64,
-// }
-// impl ChoiceNode {
-//     fn new(
-//         valves_open: HashSet<String>,
-//         valve: &Valve,
-//         flow_rate: u64,
-//         total_pressure: u64,
-//     ) -> Self {
-//         let mut choices: Vec<Choice> = Vec::new();
-//         let current_location = valve.name.clone();
-//         if !valves_open.contains(&current_location) {
-//             if valve.flow_rate > 0 {
-//                 choices.push(Choice::Open(current_location.clone()));
-//             }
-//         }
-//         for tunnel in valve.tunnels_to.iter() {
-//             choices.push(Choice::MoveTo(tunnel.clone()));
-//         }
-//         let total_pressure = total_pressure + flow_rate;
-
-//         Self {
-//             valves_open,
-//             choices,
-//             flow_rate,
-//             total_pressure,
-//         }
-//     }
-// }
-
-// fn get_shortest_path_between_valves(
-//     start: &Valve,
-//     end: &Valve,
-//     map: &HashMap<String, Valve>,
-// ) -> Vec<String> {
-//     if start.name == end.name {
-//         return vec![];
-//     }
-//     let mut best_path: Option<Vec<String>> = None;
-//     for tunnel in start.tunnels_to {
-//         if tunnel == end.name {
-//             return vec![tunnel];
-//         }
-//         let try_me = get_shortest_path_between_valves(&map[&tunnel], end, map);
-//         match best_path {
-//             None => {
-//                 best_path = Some(try_me);
-//             }
-//             Some(best_path_inner) => {
-//                 if try_me.len() < best_path_inner.len() {
-//                     best_path = Some(try_me);
-//                 }
-//             }
-//         }
-//     }
-//     return best_path.unwrap();
-// }
-
 struct DistanceMap {
     data: HashMap<String, usize>,
 }
@@ -137,12 +68,7 @@ impl DistanceMap {
     fn key_from_strs(from: &str, to: &str) -> String {
         format!("{}>{}", from, to)
     }
-    // fn key_from_strings(from: String, to: String) -> String {
-    //     format!("{}>{}", from, to)
-    // }
-    // fn key_from_valves(from: &Valve, to: &Valve) -> String {
-    //     format!("{}>{}", from.name, to.name)
-    // }
+
     fn insert(&mut self, key: String, distance: usize) {
         if self.data.contains_key(&key) {
             return;
@@ -180,82 +106,10 @@ fn get_shortest_distance(
             }
         }
         tunnels = check.into_iter().collect();
-        // tunnels = Vec::new();
-        // for tunnel_to_check in check {
-        //     tunnels.push(tunnel_to_check.clone());
-        // }
+
         depth += 1;
     }
 }
-//     let mut depth = 0;
-//     let mut tunnels: Vec<String> = vec![start.clone()];
-//     loop {
-//         println!("{}>{}, Depth: {}", start.as_str(), end.as_str(), depth);
-//         println!("{:?}", tunnels);
-//         visited.insert(start.clone());
-//         depth += 1;
-//         let mut tunnels_to_try: Vec<String> = Vec::new();
-//         for tunnel in &tunnels {
-//             let connected_tunnels = &valves[tunnel];
-//             for connected_tunnel in connected_tunnels.tunnels_to.iter() {
-//                 if visited.contains(connected_tunnel) {
-//                     continue;
-//                 }
-//                 visited.insert(tunnel.clone());
-//                 tunnels_to_try.push(tunnel.clone());
-//             }
-//         }
-//         for tunnel in tunnels_to_try.iter() {
-//             if tunnel.clone() == end.clone() {
-//                 return Some(depth);
-//             } else if !visited.contains(tunnel) {
-//                 visited.insert(tunnel.clone());
-//                 tunnels.push(tunnel.clone());
-//             }
-//         }
-//         // tunnels = tunnels_to_try.clone();
-//     }
-//     //
-// }
-// ) -> (Option<usize>, Vec<String>) {
-// // println!("  DIST {} > {}", &start, &end);
-// let start_valve = &valves[&start];
-// let return_path: Vec<String> = Vec::new();
-// // let end_valve = valves[&end];
-// let mut shortest_distance: Option<usize> = None;
-// let mut fastest_tunnel = "".to_owned();
-// for tunnel in start_valve.tunnels_to.iter() {
-//     if tunnel.clone() == end.clone() {
-//         // println!("Found {}", tunnel);
-//         return_path.push(tunnel.clone());
-//         return (Some(1usize), return_path);
-//     }
-//     if visited.contains(tunnel) {
-//         continue;
-//     }
-//     visited.insert(tunnel.clone());
-//     let (distance, path) = get_shortest_distance(tunnel.clone(), end.clone(), valves, visited);
-//     match distance {
-//         None => {
-//             continue;
-//         }
-//         Some(valid_distance) => {
-//             if shortest_distance.is_none() || valid_distance < shortest_distance.unwrap() {
-//                 shortest_distance = Some(valid_distance);
-//                 fastest_tunnel = tunnel.clone();
-//             }
-//         }
-//     }
-// }
-
-// println!("Fastest tunnel: {}", fastest_tunnel);
-
-// if let Some(valid_distance) = shortest_distance {
-//     Some(valid_distance + 1)
-// } else {
-//     None
-// }
-// }
 
 #[derive(Clone)]
 struct Player {
@@ -286,49 +140,27 @@ fn score_player(
     distance_map: &DistanceMap,
     valves: &HashMap<String, Valve>,
 ) -> Player {
-    // println!(
-    //     "This is to check for negatives: {}",
-    //     &player.moves_remaining
-    // );
     if player.moves_remaining == 0 {
         let mut return_player = player.clone();
         return_player
             .history
             .push(format!("Exhausted with {}", &return_player.score));
 
-        // for hist in &return_player.history {
-        //     println!("{}", hist);
-        // }
-        // println!("\n");
         return return_player;
     }
 
     if player.valves_remaining.len() == 0 {
-        // println!("Finished!  Score: {}", player.score);
         let mut return_player = player.clone();
         return_player
             .history
             .push(format!("Finished with {}", &return_player.score));
-        // seek out the example's best winner...
-        // if player.history[0].ends_with(" at valve DD") {
-        //     if player.history[1].ends_with(" at valve BB") {
-        //         if player.history[2].ends_with(" at valve JJ") {
-        //             for hist in &return_player.history {
-        //                 println!("{}", hist);
-        //             }
-        //             println!("\n");
-        //         }
-        //     }
-        // }
+
         return return_player;
     }
 
     let mut next_round_players: Vec<Player> = Vec::new();
 
     for next_valve in player.valves_remaining.iter() {
-        // if next_valve.clone() == player.position.clone() {
-        //     continue;
-        // }
         let movement_key =
             DistanceMap::key_from_strs(&player.position.as_str(), &next_valve.as_str());
         // need +1 to turn the valve
@@ -357,10 +189,7 @@ fn score_player(
         };
         new_player.history.push(format!(
             "I scored {}x{}={} at valve {}",
-            valves[&position].flow_rate,
-            moves_remaining + 0,
-            gained_score,
-            position
+            valves[&position].flow_rate, moves_remaining, gained_score, position
         ));
         new_player
             .history
@@ -384,8 +213,6 @@ fn score_player(
         }
     }
 
-    // println!("Next round: {} players", next_round_players.len());
-
     best_player
 }
 
@@ -395,8 +222,6 @@ fn score_valve(valve: &Valve, moves_scored: usize) -> u64 {
 
 pub fn d16s1(submit: bool) {
     let (valves, _first_name) = input();
-    // let first_valve = valves.get(&first_name).unwrap();
-    // let root_node = ChoiceNode::new(HashSet::new(), first_valve, 0, 0);
     let first_name = "AA".to_owned();
     let mut valuable_valves: HashSet<String> = HashSet::new();
     for (name, valve) in &valves {
@@ -407,8 +232,6 @@ pub fn d16s1(submit: bool) {
     let mut traveling_starting_points = valuable_valves.clone();
     traveling_starting_points.insert(first_name.clone());
 
-    // println!("START: {:?}", &traveling_starting_points);
-    // println!("ENDS : {:?}", &valuable_valves);
     let mut distance_map: DistanceMap = DistanceMap::new();
     for start in traveling_starting_points.iter() {
         for end in valuable_valves.iter() {
@@ -417,7 +240,6 @@ pub fn d16s1(submit: bool) {
             }
 
             let mut visited: HashSet<String> = HashSet::new();
-            // println!("DIST {} > {}", &start, &end);
             let distance = get_shortest_distance(start.clone(), end.clone(), &valves, &mut visited);
             let key = DistanceMap::key_from_strs(start.as_str(), end.as_str());
             distance_map.insert(
@@ -426,17 +248,6 @@ pub fn d16s1(submit: bool) {
             );
         }
     }
-    println!("DISTANCES:\n{:?}", distance_map.data);
-
-    println!("\n\n");
-    let mut visited: HashSet<String> = HashSet::new();
-    // println!("DIST {} > {}", &start, &end);
-    // let distance = get_shortest_distance("BB".to_owned(), "JJ".to_owned(), &valves, &mut visited);
-    // println!("Distance: {}", distance.unwrap());
-
-    // let mut tree_root = ChoiceTree::new(0usize, root_node);
-    // let answer = find_the_most_pressure(30, &mut tree_root, &valves);
-    println!("\n\n");
 
     let move_count = 30;
 
