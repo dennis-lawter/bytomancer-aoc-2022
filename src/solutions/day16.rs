@@ -67,6 +67,7 @@ enum Choice {
     MoveTo(String),
 }
 
+#[derive(Clone)]
 struct ChoiceNode {
     valves_open: HashSet<String>,
     choices: Vec<Choice>,
@@ -110,6 +111,7 @@ impl ChoiceNode {
     // }
 }
 
+#[derive(Clone)]
 struct ChoiceTree {
     depth: usize,
     node: ChoiceNode,
@@ -124,16 +126,18 @@ fn find_the_most_pressure(
     max_depth: usize,
     tree: &mut ChoiceTree,
     valve_list: &HashMap<String, Valve>,
-) -> u64 {
+) -> Vec<ChoiceTree> {
     // println!("{} DEPTH", tree.depth);
     if tree.depth == max_depth {
         // if tree.node.total_pressure > 0 {
         //     println!("RETURNING: {}", tree.node.total_pressure);
         // }
-        return tree.node.total_pressure;
+        return vec![tree.clone()];
     }
     let choices = &tree.node.choices;
-    let mut highest_pressure_seen = 0u64;
+    // let mut highest_pressure_seen = 0u64;
+    // let mut highest_pressure_tree: Option<ChoiceTree> = None;
+    let mut result: Vec<ChoiceTree> = Vec::new();
     for choice in choices {
         match choice {
             Choice::Open(open_me) => {
@@ -148,11 +152,14 @@ fn find_the_most_pressure(
                     tree.node.total_pressure,
                 );
                 let mut new_tree_node = ChoiceTree::new(tree.depth + 1, new_node);
-                let new_pressure =
-                    find_the_most_pressure(max_depth, &mut new_tree_node, valve_list);
-                if new_pressure > highest_pressure_seen {
-                    highest_pressure_seen = new_pressure;
-                }
+                let found_trees = find_the_most_pressure(max_depth, &mut new_tree_node, valve_list);
+                for found_tree in found_trees {}
+                // match best_found {
+                //     Some(best) => if best.node.total_pressure > highest_pressure_seen {},
+                // }
+                // if best_found > highest_pressure_seen {
+                //     highest_pressure_seen = new_pressure;
+                // }
             }
             Choice::MoveTo(move_to_me) => {
                 let move_to_valve = valve_list.get(move_to_me).unwrap();
