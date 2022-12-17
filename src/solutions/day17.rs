@@ -1,10 +1,10 @@
-use core::time;
+// use core::time;
 // use core::time;
 use std::collections::VecDeque;
 // use std::thread;
 
-use indicatif::ProgressBar;
-use indicatif::ProgressStyle;
+// use indicatif::ProgressBar;
+// use indicatif::ProgressStyle;
 
 use super::final_answer;
 use super::input_raw;
@@ -64,7 +64,8 @@ impl Board {
     fn print(&self) {
         let starting_line = self.solid_lines.len() + self.floor_offset + 5;
         let mut i = starting_line;
-        while i > 0 {
+        let mut futility = 0;
+        while i > 0 && futility < 25 {
             let mut scanline = 0u8;
             // if i >= self.active_lines_offset && i - starting_line < self.active_lines.len() {
             if i >= self.active_lines_offset
@@ -90,6 +91,7 @@ impl Board {
             println!("│ {}", i);
 
             i -= 1;
+            futility += 1;
         }
         println!("└──────────────┘")
     }
@@ -296,25 +298,36 @@ pub fn d17s2(submit: bool) {
     rock_order.push(Rock::VBar);
     rock_order.push(Rock::Square);
     let mut rock_iter = 0usize;
-    let bar_style = ProgressStyle::with_template(
-        "[{elapsed_precise} elapsed] [{eta_precise} remaining] [{percent:.2}%] [{human_pos:>7} M/{human_len:7} M] {msg}\n{bar:80.cyan/blue} ",
-    )
-    .unwrap();
-    let bar = ProgressBar::new(1000000000 / 1_000_000).with_style(bar_style);
-    bar.enable_steady_tick(time::Duration::from_millis(1000));
+    // let bar_style = ProgressStyle::with_template(
+    //     "[{elapsed_precise} elapsed] [{eta_precise} remaining] [{percent:.2}%] [{human_pos:>7} M/{human_len:7} M] {msg}\n{bar:80.cyan/blue} ",
+    // )
+    // .unwrap();
+    // let bar = ProgressBar::new(1000000000000).with_style(bar_style);
+    // bar.enable_steady_tick(time::Duration::from_millis(1000));
     let mut i = 0usize;
-    while game.count_solid_rocks < 1000000000usize {
+    let mut cycles = 0usize;
+    let mut rock_count_for_first_cycle = 0usize;
+    let mut height_for_first_cycle = 0usize;
+    let mut rock_count_for_second_cycle = 0;
+    let mut height_for_second_cycle = 0usize;
+    let mut final_answer_increase = 0usize;
+    // let mut rock_count_for_third_cycle = 0;
+    while game.count_solid_rocks < 1000000000000usize {
         // println!("Solid rocks so far: {}", game.count_solid_rocks);
         // println!("Game debug: {:?}", game);
         if game.does_game_need_new_rock() {
+            if i == 0 && rock_iter % 5 == 0 && game.count_solid_rocks > 0 {
+                // game.print();
+                panic!("Groundhog Day found: {}", game.count_solid_rocks);
+            }
             let rock = &rock_order[rock_iter % 5];
             rock_iter += 1;
             // println!("Inserting {:?}", rock);
             game.insert_falling_rock(rock);
             // rock_order.push_back(rock);
-            if game.count_solid_rocks % 1_000_000 == 0 {
-                bar.inc(1);
-            }
+            // if game.count_solid_rocks % 1_000_000 == 0 {
+            //     bar.inc(1);
+            // }
 
             // game.print();
             // panic!("TEST");
@@ -325,15 +338,51 @@ pub fn d17s2(submit: bool) {
         i += 1;
         if i >= input.len() {
             i = 0;
+            println!("ROCKS FALLEN: {}", game.count_solid_rocks);
+            // game.print();
+            if cycles == 0 {
+                // store first cycle as a weird offset
+                rock_count_for_first_cycle = game.count_solid_rocks;
+                height_for_first_cycle = game.solid_lines.len();
+            }
+            if cycles == 1 {
+                rock_count_for_second_cycle = game.count_solid_rocks - rock_count_for_first_cycle;
+                height_for_second_cycle = game.solid_lines.len() - height_for_first_cycle;
+
+                while game.count_solid_rocks + rock_count_for_second_cycle < 1000000000000usize {
+                    game.count_solid_rocks += rock_count_for_second_cycle;
+                    final_answer_increase += height_for_second_cycle;
+                }
+            }
+            // if cycles == 2 {
+            //     rock_count_for_third_cycle = game.count_solid_rocks
+            //         - rock_count_for_second_cycle
+            //         - rock_count_for_first_cycle;
+            //     // break 'gameloop;
+            // while game.count_solid_rocks + rock_count_for_second_cycle < 1000000000000usize {
+            //     game.count_solid_rocks += rock_count_for_second_cycle;
+            // }
+            // }
+            game.print();
+            cycles += 1;
         }
 
         // game.print();
         // panic!("TEST");
         // thread::sleep(time::Duration::from_millis(1000));
     }
-    bar.finish();
+
+    println!(
+        "FIRST: {}\tHEIGHT: {}\nSECOND: {}\tHEIGHT: {}\n\n",
+        rock_count_for_first_cycle,
+        height_for_first_cycle,
+        rock_count_for_second_cycle,
+        height_for_second_cycle
+    );
+    game.print();
+    // bar.finish();
     final_answer(
-        (game.solid_lines.len() + game.floor_offset - 1) * 1000,
+        (game.solid_lines.len() + game.floor_offset - 1) + final_answer_increase,
         submit,
         DAY,
         2,
