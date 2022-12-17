@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
@@ -111,7 +112,7 @@ fn get_shortest_distance(
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Eq)]
 struct Player {
     score: u64,
     position: String,
@@ -120,6 +121,70 @@ struct Player {
     helper_moves_remaining: Option<usize>,
     valves_remaining: Vec<String>,
     history: Vec<String>,
+}
+impl PartialEq for Player {
+    fn eq(&self, other: &Self) -> bool {
+        let self_moves: usize;
+        if let Some(helper_moves) = self.helper_moves_remaining {
+            self_moves = self.moves_remaining + helper_moves;
+        } else {
+            self_moves = self.moves_remaining;
+        }
+        let other_moves: usize;
+        if let Some(helper_moves) = other.helper_moves_remaining {
+            other_moves = other.moves_remaining + helper_moves;
+        } else {
+            other_moves = other.moves_remaining;
+        }
+
+        self.score == other.score && self_moves == other_moves
+    }
+}
+impl PartialOrd for Player {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match self.score.partial_cmp(&other.score) {
+            Some(core::cmp::Ordering::Equal) => {
+                let self_moves: usize;
+                if let Some(helper_moves) = self.helper_moves_remaining {
+                    self_moves = self.moves_remaining + helper_moves;
+                } else {
+                    self_moves = self.moves_remaining;
+                }
+                let other_moves: usize;
+                if let Some(helper_moves) = other.helper_moves_remaining {
+                    other_moves = other.moves_remaining + helper_moves;
+                } else {
+                    other_moves = other.moves_remaining;
+                }
+
+                self_moves.partial_cmp(&other_moves)
+            }
+            ord => return ord,
+        }
+    }
+}
+impl Ord for Player {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match self.score.cmp(&other.score) {
+            core::cmp::Ordering::Equal => {
+                let self_moves: usize;
+                if let Some(helper_moves) = self.helper_moves_remaining {
+                    self_moves = self.moves_remaining + helper_moves;
+                } else {
+                    self_moves = self.moves_remaining;
+                }
+                let other_moves: usize;
+                if let Some(helper_moves) = other.helper_moves_remaining {
+                    other_moves = other.moves_remaining + helper_moves;
+                } else {
+                    other_moves = other.moves_remaining;
+                }
+
+                self_moves.cmp(&other_moves)
+            }
+            ord => return ord,
+        }
+    }
 }
 impl Player {
     fn new(position: String, moves_remaining: usize, valuable_valves: &HashSet<String>) -> Self {
@@ -339,44 +404,63 @@ fn score_player_with_helper(
         return return_player;
     }
 
-    let mut next_round_players: Vec<Player> = Vec::new();
+    let mut next_round_candidates: Vec<Player> = Vec::new();
 
     for next_valve in player.valves_remaining.iter() {
         match move_player(player, next_valve, valves, distance_map) {
             Some(new_player) => {
-                next_round_players.push(new_player);
+                next_round_candidates.push(new_player);
             }
             None => {}
         }
         match move_helper(player, next_valve, valves, distance_map) {
             Some(new_player) => {
-                next_round_players.push(new_player);
+                next_round_candidates.push(new_player);
             }
             None => {}
         }
     }
 
-    let mut greatest_score = 0u64;
-    let mut best_player = player.clone();
+    let mut greatest_score_among_candidates = 0u64;
+    // let mut top_candidate: Player =
+    let mut top_candidate = player.clone();
 
-    if next_round_players.len() == 0 {
+    if next_round_candidates.len() == 0 {
         // println!(
         //     "Options ran out, player at {} helper at {}, score was {}",
         //     player.position.as_str(),
         //     player.helper.as_ref().unwrap().as_str(),
         //     player.score
         // );
-        best_player.history.push("I'm out of options!".to_owned());
-        return best_player;
+        top_candidate.history.push("I'm out of options!".to_owned());
+        return top_candidate;
+    } else if next_round_candidates.len() == 1 {
+        let only_candidate = next_round_candidates[0].clone();
+        return score_player_with_helper(&only_candidate, distance_map, valves);
     }
 
-    for new_player in &next_round_players {
-        let test_player = score_player_with_helper(new_player, distance_map, valves);
-        if test_player.score > greatest_score {
-            greatest_score = test_player.score;
-            best_player = test_player.clone();
-        }
-    }
+    // for new_player in &next_round_candidates {
+    //     if new_player.score == greatest_score_among_candidates {
+    //         let new_player_movement_total =
+    //             new_player.moves_remaining + new_player.helper_moves_remaining.unwrap();
+    //         let top_candidate_movement_total =
+    //             top_candidate.moves_remaining + top_candidate.helper_moves_remaining.unwrap();
+    //         if new_player_movement_total > top_candidate_movement_total {
+    //             top_candidate = new_player.clone();
+    //         }
+    //     } else if new_player.score > greatest_score_among_candidates {
+    //         greatest_score_among_candidates = new_player.score;
+    //         top_candidate = new_player.clone();
+    //     }
+    //     // let test_player = score_player_with_helper(new_player, distance_map, valves);
+    //     // if test_player.score > greatest_score {
+    //     //     greatest_score = test_player.score;
+    //     //     top_candidate = test_player.clone();
+    //     // }
+    // }
+
+    next_round_candidates.sort();
+    next_round_candidates.reverse();
 
     // println!(
     //     "BEST SCORE OF {} PLAYERS WAS {}",
@@ -384,8 +468,26 @@ fn score_player_with_helper(
     //     greatest_score
     // );
 
-    best_player
+    let mut best_candidates: Vec<Player> = Vec::new();
+
+    let max_slice = max(2, next_round_candidates.len() / 2);
+
+    for i in 0..max_slice {
+        let great_candidate = next_round_candidates[i].clone();
+        let candidate_results = score_player_with_helper(&great_candidate, distance_map, valves);
+        best_candidates.push(candidate_results.clone());
+    }
+
+    best_candidates.sort();
+    best_candidates.reverse();
+    return best_candidates[0].clone();
 }
+
+//     println!("\nHISTORY:\n");
+//     for hist in &top_candidate.history {
+//         println!("  {}", hist.as_str());
+//     }
+// }
 
 fn score_valve(valve: &Valve, moves_scored: usize) -> u64 {
     valve.flow_rate * (moves_scored + 0) as u64
@@ -461,7 +563,7 @@ pub fn d16s2(submit: bool) {
         }
     }
 
-    let move_count = 13;
+    let move_count = 26;
 
     let root = Player::new_with_helper(
         first_name.clone(),
@@ -470,7 +572,9 @@ pub fn d16s2(submit: bool) {
         first_name.clone(),
         move_count,
     );
+
     let best_player = score_player_with_helper(&root, &distance_map, &valves);
+    println!("\n\n\nBEST ANSWER:\n");
     for hist in best_player.history {
         println!("{}", hist);
     }
