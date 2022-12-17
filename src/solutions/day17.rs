@@ -1,6 +1,10 @@
+use core::time;
 // use core::time;
 use std::collections::VecDeque;
 // use std::thread;
+
+use indicatif::ProgressBar;
+use indicatif::ProgressStyle;
 
 use super::final_answer;
 use super::input_raw;
@@ -10,6 +14,10 @@ const DAY: u8 = 17;
 fn input() -> Vec<char> {
     input_raw(DAY).chars().into_iter().collect()
 }
+
+const SOLID_ROCKS_WINDOW_SIZE: usize = 1_000_000;
+
+// const SOLID_ROCKS_WINDOW_SIZE: usize = 1_000;
 
 #[derive(Clone, Debug)]
 enum Rock {
@@ -25,7 +33,7 @@ enum BreezeDirection {
     Right,
 }
 impl BreezeDirection {
-    fn new(input: char) -> Self {
+    fn new(input: &char) -> Self {
         match input {
             '<' => Self::Left,
             '>' => Self::Right,
@@ -36,23 +44,25 @@ impl BreezeDirection {
 
 #[derive(Debug)]
 struct Board {
-    solid_lines: Vec<u8>,
+    solid_lines: VecDeque<u8>,
     active_lines: Vec<u8>,
     active_lines_offset: usize,
     count_solid_rocks: usize,
+    floor_offset: usize,
 }
 
 impl Board {
     fn new() -> Self {
         Self {
-            solid_lines: vec![0xff], // floor at 0
-            active_lines: Vec::new(),
+            solid_lines: vec![0xff].into_iter().collect(), // floor at 0
+            active_lines: Vec::with_capacity(10),
             active_lines_offset: 0,
             count_solid_rocks: 0, // floor doesn't count
+            floor_offset: 0,
         }
     }
     fn print(&self) {
-        let starting_line = self.solid_lines.len() + 5;
+        let starting_line = self.solid_lines.len() + self.floor_offset + 5;
         let mut i = starting_line;
         while i > 0 {
             let mut scanline = 0u8;
@@ -62,7 +72,7 @@ impl Board {
             {
                 scanline |= self.active_lines[i - self.active_lines_offset];
             }
-            if i < self.solid_lines.len() {
+            if i < self.solid_lines.len() + self.floor_offset {
                 scanline |= self.solid_lines[i];
             }
             print!("│");
@@ -83,7 +93,7 @@ impl Board {
         }
         println!("└──────────────┘")
     }
-    fn insert_falling_rock(&mut self, rock: Rock) {
+    fn insert_falling_rock(&mut self, rock: &Rock) {
         self.active_lines_offset = self.solid_lines.len() + 3;
         // for _ in 0..3 {
         //     self.active_lines.push(0);
@@ -116,7 +126,7 @@ impl Board {
         }
     }
 
-    fn game_cycle_with_breeze(&mut self, direction: BreezeDirection) {
+    fn game_cycle_with_breeze(&mut self, direction: &BreezeDirection) {
         let mut can_move = true;
         match direction {
             BreezeDirection::Left => {
@@ -170,7 +180,7 @@ impl Board {
 
     fn do_gravity_return_collision(&mut self) -> bool {
         self.active_lines_offset -= 1;
-        // if self.active_lines_offset > self.solid_lines.len() - 1 {
+        // if self.active_lines_offset > self.solid_lines.len() + self.floor_offset - 1 {
         //     return false;
         // }
         if self.test_collision() {
@@ -197,56 +207,68 @@ impl Board {
     }
 
     fn blit_active_lines_to_solid(&mut self) {
-        let blank_rows_needed_count = self.active_lines.len();
-        for _ in 0..blank_rows_needed_count {
-            self.solid_lines.push(0);
-        }
+        // let blank_rows_needed_count = self.active_lines.len();
+        // for _ in 0..blank_rows_needed_count {
+        //     self.solid_lines.push_back(0);
+        // }
         for i in 0..self.active_lines.len() {
             let from_active = self.active_lines.get_mut(i).unwrap();
-            let from_solid = self
-                .solid_lines
-                .get_mut(i + self.active_lines_offset)
-                .unwrap();
-            *from_solid = *from_solid | *from_active;
+            match self.solid_lines.get_mut(i + self.active_lines_offset) {
+                Some(from_solid) => {
+                    *from_solid = *from_solid | *from_active;
+                }
+                None => {
+                    self.solid_lines.push_back(*from_active);
+                }
+            }
         }
         self.blank_active_lines();
         self.count_solid_rocks += 1;
 
         while self.solid_lines[self.solid_lines.len() - 1] == 0 {
-            self.solid_lines.pop();
+            self.solid_lines.pop_back();
         }
+        while self.solid_lines.len() > SOLID_ROCKS_WINDOW_SIZE * 2 {
+            self.solid_lines = self.solid_lines.split_off(SOLID_ROCKS_WINDOW_SIZE);
+            // self.solid_lines.pop_front();
+            self.floor_offset += SOLID_ROCKS_WINDOW_SIZE;
+            // self.active_lines_offset -= 1;
+        }
+        // while self.solid_lines
+        // for self.self.solid_lines
     }
 
     fn blank_active_lines(&mut self) {
-        self.active_lines = vec![];
+        self.active_lines = Vec::with_capacity(4);
     }
 }
 
 pub fn d17s1(submit: bool) {
     let input = input();
     let mut game = Board::new();
-    let mut rock_order: VecDeque<Rock> = VecDeque::with_capacity(5);
-    rock_order.push_back(Rock::HBar);
-    rock_order.push_back(Rock::Plus);
-    rock_order.push_back(Rock::Corner);
-    rock_order.push_back(Rock::VBar);
-    rock_order.push_back(Rock::Square);
+    let mut rock_order: Vec<Rock> = Vec::with_capacity(5);
+    rock_order.push(Rock::HBar);
+    rock_order.push(Rock::Plus);
+    rock_order.push(Rock::Corner);
+    rock_order.push(Rock::VBar);
+    rock_order.push(Rock::Square);
+    let mut rock_iter = 0usize;
     let mut i = 0usize;
     while game.count_solid_rocks < 2022 {
-        println!("Solid rocks so far: {}", game.count_solid_rocks);
+        // println!("Solid rocks so far: {}", game.count_solid_rocks);
         // println!("Game debug: {:?}", game);
         if game.does_game_need_new_rock() {
-            let rock = rock_order.pop_front().unwrap();
+            let rock = &rock_order[rock_iter % 5];
+            rock_iter += 1;
             // println!("Inserting {:?}", rock);
-            game.insert_falling_rock(rock.clone());
-            rock_order.push_back(rock);
+            game.insert_falling_rock(rock);
 
             // game.print();
             // panic!("TEST");
             // thread::sleep(time::Duration::from_millis(1000));
         }
-        let breeze = BreezeDirection::new(input[i]);
-        game.game_cycle_with_breeze(breeze);
+        let breeze = BreezeDirection::new(&input[i]);
+        game.game_cycle_with_breeze(&breeze);
         i += 1;
         if i >= input.len() {
             i = 0;
@@ -256,10 +278,64 @@ pub fn d17s1(submit: bool) {
         // panic!("TEST");
         // thread::sleep(time::Duration::from_millis(1000));
     }
-    final_answer(game.solid_lines.len() - 1, submit, DAY, 1);
+    final_answer(
+        game.solid_lines.len() + game.floor_offset - 1,
+        submit,
+        DAY,
+        1,
+    );
 }
 
 pub fn d17s2(submit: bool) {
     let input = input();
-    final_answer(input.len(), submit, DAY, 2);
+    let mut game = Board::new();
+    let mut rock_order: Vec<Rock> = Vec::with_capacity(5);
+    rock_order.push(Rock::HBar);
+    rock_order.push(Rock::Plus);
+    rock_order.push(Rock::Corner);
+    rock_order.push(Rock::VBar);
+    rock_order.push(Rock::Square);
+    let mut rock_iter = 0usize;
+    let bar_style = ProgressStyle::with_template(
+        "[{elapsed_precise} elapsed] [{eta_precise} remaining] [{percent:.2}%] [{human_pos:>7} M/{human_len:7} M] {msg}\n{bar:80.cyan/blue} ",
+    )
+    .unwrap();
+    let bar = ProgressBar::new(1000000000 / 1_000_000).with_style(bar_style);
+    bar.enable_steady_tick(time::Duration::from_millis(1000));
+    let mut i = 0usize;
+    while game.count_solid_rocks < 1000000000usize {
+        // println!("Solid rocks so far: {}", game.count_solid_rocks);
+        // println!("Game debug: {:?}", game);
+        if game.does_game_need_new_rock() {
+            let rock = &rock_order[rock_iter % 5];
+            rock_iter += 1;
+            // println!("Inserting {:?}", rock);
+            game.insert_falling_rock(rock);
+            // rock_order.push_back(rock);
+            if game.count_solid_rocks % 1_000_000 == 0 {
+                bar.inc(1);
+            }
+
+            // game.print();
+            // panic!("TEST");
+            // thread::sleep(time::Duration::from_millis(1000));
+        }
+        let breeze = BreezeDirection::new(&input[i]);
+        game.game_cycle_with_breeze(&breeze);
+        i += 1;
+        if i >= input.len() {
+            i = 0;
+        }
+
+        // game.print();
+        // panic!("TEST");
+        // thread::sleep(time::Duration::from_millis(1000));
+    }
+    bar.finish();
+    final_answer(
+        (game.solid_lines.len() + game.floor_offset - 1) * 1000,
+        submit,
+        DAY,
+        2,
+    );
 }

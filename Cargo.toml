@@ -10,6 +10,7 @@ colored = "2.0.0"
 crossterm = "0.25.0"
 dotenv = "0.15.0"
 indexmap = "1.9.2"
+indicatif = { version = "0.17.2", features = ["tokio"] }
 num-format = "0.4.4"
 pad = "0.1.6"
 regex = "1.7.0"
