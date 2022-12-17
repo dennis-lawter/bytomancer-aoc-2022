@@ -376,12 +376,6 @@ fn score_player_with_helper(
 ) -> Player {
     if player.moves_remaining == 0 && player.helper_moves_remaining.unwrap() == 0 {
         let mut return_player = player.clone();
-        // println!(
-        //     "Exhausted, player at {} helper at {}, score was {}",
-        //     player.position.as_str(),
-        //     player.helper.as_ref().unwrap().as_str(),
-        //     player.score
-        // );
         return_player
             .history
             .push(format!("Exhausted with {}", &return_player.score));
@@ -391,12 +385,6 @@ fn score_player_with_helper(
 
     if player.valves_remaining.len() == 0 {
         let mut return_player = player.clone();
-        // println!(
-        //     "Finished, player at {} helper at {}, score was {}",
-        //     player.position.as_str(),
-        //     player.helper.as_ref().unwrap().as_str(),
-        //     player.score
-        // );
         return_player
             .history
             .push(format!("Finished with {}", &return_player.score));
@@ -421,17 +409,8 @@ fn score_player_with_helper(
         }
     }
 
-    let mut greatest_score_among_candidates = 0u64;
-    // let mut top_candidate: Player =
     let mut top_candidate = player.clone();
-
     if next_round_candidates.len() == 0 {
-        // println!(
-        //     "Options ran out, player at {} helper at {}, score was {}",
-        //     player.position.as_str(),
-        //     player.helper.as_ref().unwrap().as_str(),
-        //     player.score
-        // );
         top_candidate.history.push("I'm out of options!".to_owned());
         return top_candidate;
     } else if next_round_candidates.len() == 1 {
@@ -439,34 +418,8 @@ fn score_player_with_helper(
         return score_player_with_helper(&only_candidate, distance_map, valves);
     }
 
-    // for new_player in &next_round_candidates {
-    //     if new_player.score == greatest_score_among_candidates {
-    //         let new_player_movement_total =
-    //             new_player.moves_remaining + new_player.helper_moves_remaining.unwrap();
-    //         let top_candidate_movement_total =
-    //             top_candidate.moves_remaining + top_candidate.helper_moves_remaining.unwrap();
-    //         if new_player_movement_total > top_candidate_movement_total {
-    //             top_candidate = new_player.clone();
-    //         }
-    //     } else if new_player.score > greatest_score_among_candidates {
-    //         greatest_score_among_candidates = new_player.score;
-    //         top_candidate = new_player.clone();
-    //     }
-    //     // let test_player = score_player_with_helper(new_player, distance_map, valves);
-    //     // if test_player.score > greatest_score {
-    //     //     greatest_score = test_player.score;
-    //     //     top_candidate = test_player.clone();
-    //     // }
-    // }
-
     next_round_candidates.sort();
     next_round_candidates.reverse();
-
-    // println!(
-    //     "BEST SCORE OF {} PLAYERS WAS {}",
-    //     next_round_players.len(),
-    //     greatest_score
-    // );
 
     let mut best_candidates: Vec<Player> = Vec::new();
 
@@ -480,14 +433,9 @@ fn score_player_with_helper(
 
     best_candidates.sort();
     best_candidates.reverse();
-    return best_candidates[0].clone();
-}
 
-//     println!("\nHISTORY:\n");
-//     for hist in &top_candidate.history {
-//         println!("  {}", hist.as_str());
-//     }
-// }
+    best_candidates[0].clone()
+}
 
 fn score_valve(valve: &Valve, moves_scored: usize) -> u64 {
     valve.flow_rate * (moves_scored + 0) as u64
