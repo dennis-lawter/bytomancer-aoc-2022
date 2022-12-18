@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+use indexmap::IndexMap;
+
 use super::final_answer;
 use super::input_raw;
 
@@ -65,6 +67,9 @@ impl Cube {
             || *other == self.cube_east()
             || *other == self.cube_west()
     }
+    fn as_tuple(&self) -> (u8, u8, u8) {
+        (self.x, self.y, self.z)
+    }
 }
 impl PartialEq for Cube {
     fn eq(&self, other: &Self) -> bool {
@@ -88,9 +93,9 @@ fn input() -> Vec<Cube> {
     for line in lines {
         let mut coord_components = line.split(",");
         result.push(Cube::new(
-            str::parse::<u8>(coord_components.next().unwrap()).unwrap(),
-            str::parse::<u8>(coord_components.next().unwrap()).unwrap(),
-            str::parse::<u8>(coord_components.next().unwrap()).unwrap(),
+            str::parse::<u8>(coord_components.next().unwrap()).unwrap() + 1,
+            str::parse::<u8>(coord_components.next().unwrap()).unwrap() + 1,
+            str::parse::<u8>(coord_components.next().unwrap()).unwrap() + 1,
         ));
     }
 
@@ -117,6 +122,7 @@ pub fn d18s1(submit: bool) {
     final_answer(surface_area, submit, DAY, 1);
 }
 
+#[derive(PartialEq)]
 enum Material {
     Air,
     Cube,
@@ -125,54 +131,51 @@ enum Material {
 
 pub fn d18s2(submit: bool) {
     let cubes = input();
-    let number_of_cubes = cubes.len();
-    let mut number_of_adjacencies = 0usize;
-    let mut cubes_checked: Vec<&Cube> = Vec::with_capacity(cubes.len());
-    // let mut x_min = cubes[0].x;
+    // let _number_of_cubes = cubes.len();
+    // let mut _number_of_adjacencies = 0usize;
+    // let mut _cubes_checked: Vec<&Cube> = Vec::with_capacity(cubes.len());
     let mut x_max = cubes[0].x;
-    // let mut y_min = cubes[0].y;
     let mut y_max = cubes[0].y;
-    // let mut z_min = cubes[0].z;
     let mut z_max = cubes[0].z;
     for cube in cubes.iter() {
-        if cube.x < x_min {
-            x_min = cube.x;
-        } else if cube.x > x_min {
+        if cube.x > x_max {
             x_max = cube.x;
         }
-        if cube.y < y_min {
-            y_min = cube.y;
-        } else if cube.y > y_min {
+        if cube.y > y_max {
             y_max = cube.y;
         }
-        if cube.z < z_min {
-            z_min = cube.z;
-        } else if cube.z > z_min {
+        if cube.z > z_max {
             z_max = cube.z;
         }
     }
-    // x_min -= 1;
     x_max += 1;
-    // y_min -= 1;
     y_max += 1;
-    // z_min -= 1;
     z_max += 1;
-    // let x_range_magnitude = x_max - x_min;
-    // let x_range_magnitude = x_max - x_min;
-    // let x_range_magnitude = x_max - x_min;
-    let total_surface_area = (number_of_cubes * 6) - (number_of_adjacencies * 2);
 
-    let mut air_cubes_not_trapped: Vec<Cube> = Vec::new();
-    let mut air_fringe: VecDeque<Cube> = VecDeque::new();
-    air_fringe.push_back(Cube::new(x_min, y_min, z_min));
-    'fringe_process: while air_fringe.len() > 0 {
-        let current = air_fringe.pop_front().unwrap();
-        for cube in cubes.iter() {
-            if *cube == current {
-                continue 'fringe_process;
+    let mut map: IndexMap<(u8, u8, u8), Material> = IndexMap::new();
+    for x in 0..=x_max {
+        for y in 0..=y_max {
+            for z in 0..=z_max {
+                map.insert((x, y, z), Material::Void);
             }
         }
-        air_cubes_not_trapped.push(current.clone());
+    }
+    for cube in cubes.iter() {
+        map.insert(cube.as_tuple(), Material::Cube);
+    }
+
+    let mut air_fringe: VecDeque<Cube> = VecDeque::new();
+    air_fringe.push_back(Cube::new(0, 0, 0));
+    while air_fringe.len() > 0 {
+        let current = air_fringe.pop_front().unwrap();
+        let current_tuple = current.as_tuple();
+        let map_at_current = map
+            .get(&current_tuple)
+            .expect(format!("No value at {:?}", current_tuple).as_str());
+        if *map_at_current != Material::Void {
+            continue;
+        }
+        map.insert(current_tuple, Material::Air);
         let neighbors = [
             current.cube_above(),
             current.cube_below(),
@@ -182,24 +185,34 @@ pub fn d18s2(submit: bool) {
             current.cube_west(),
         ];
         for neighbor in neighbors {
-            if neighbor.x >= x_min
-                && neighbor.x <= x_max
-                && neighbor.y >= y_min
-                && neighbor.y <= y_max
-                && neighbor.z >= z_min
-                && neighbor.z <= z_max
-            {
+            if neighbor.x <= x_max && neighbor.y <= y_max && neighbor.z <= z_max {
                 air_fringe.push_back(neighbor);
             }
         }
     }
-    // for x in (x_min-1..(x_max+2) {
-    //     for y in (y_min-1..y_max+2) {
-    //         for z in (z_min..z_max+2) {
-    //             let new_cube = Cube::new(x, y, z);
-    //             if cubes.contains(x)
-    //         }
-    //     }
-    // }
-    // final_answer(surface_area, submit, DAY, 2);
+
+    let mut external_surface_area = 0usize;
+    for current in cubes.iter() {
+        let neighbors = [
+            current.cube_above(),
+            current.cube_below(),
+            current.cube_north(),
+            current.cube_south(),
+            current.cube_east(),
+            current.cube_west(),
+        ];
+        for neighbor in neighbors {
+            let neighbor_tuple = neighbor.as_tuple();
+            let material_at_neighbor_location = map
+                .get(&neighbor_tuple)
+                .expect(format!("No value at {:?}", neighbor_tuple).as_str());
+            match material_at_neighbor_location {
+                Material::Air => {
+                    external_surface_area += 1;
+                }
+                _ => {}
+            }
+        }
+    }
+    final_answer(external_surface_area, submit, DAY, 1);
 }
