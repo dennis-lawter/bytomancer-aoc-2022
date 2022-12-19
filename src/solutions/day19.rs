@@ -437,6 +437,32 @@ pub fn d19s1(submit: bool) {
 }
 
 pub fn d19s2(submit: bool) {
-    let input = input();
-    final_answer(input.len(), submit, DAY, 2);
+    let blueprints = input();
+    const MINUTES: u32 = 32;
+
+    let mut answers: Vec<u32> = Vec::new();
+
+    for (id, blueprint) in blueprints.iter() {
+        if *id > 3 {
+            break;
+        }
+        // MINUTES may need adjustment?
+        let state = RoboState::new(MINUTES + 0, blueprint.id);
+        let mut earliest_clay = 0u32;
+        let mut earliest_obsidian = 0u32;
+        let mut earliest_geode = 0u32;
+        let best_state = rate_state_quality(
+            state.clone(),
+            &blueprints,
+            &mut earliest_clay,
+            &mut earliest_obsidian,
+            &mut earliest_geode,
+        );
+        // quality += 1; // wtf?
+        println!("Quality found for BP#{}: {}", id, best_state.num_geodes);
+        println!("STATE:\n{}", best_state);
+        answers.push(best_state.num_geodes);
+    }
+    let answer = answers[0] * answers[1] * answers[2];
+    final_answer(answer, submit, DAY, 2);
 }
