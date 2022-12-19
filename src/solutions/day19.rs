@@ -151,17 +151,22 @@ fn rate_state_quality(state: RoboState, blueprints: &IndexMap<u32, RoboBlueprint
     // no matter what, always create a branch where I make nothing.
     states_to_try.insert(Intent::None, state.clone());
     // if I can afford a new robot, create a branch where I make it.
-    if state.can_afford_ore_robot(blueprints) && state.num_clay_robots == 0 {
+    if state.can_afford_geode_robot(blueprints) {
+        // states_to_try.insert(Intent::BuyGeodeRobot, state.clone());
+        // Always the best choice
+        let mut next_state = state.clone();
+        next_state.tick();
+        next_state.buy_geode_robot(blueprints);
+        return next_state;
+    }
+    if state.can_afford_ore_robot(blueprints) {
         states_to_try.insert(Intent::BuyOreRobot, state.clone());
     }
-    if state.can_afford_clay_robot(blueprints) && state.num_obsidian_robots == 0 {
+    if state.can_afford_clay_robot(blueprints) {
         states_to_try.insert(Intent::BuyClayRobot, state.clone());
     }
-    if state.can_afford_obsidian_robot(blueprints) && state.num_geode_robots == 0 {
+    if state.can_afford_obsidian_robot(blueprints) {
         states_to_try.insert(Intent::BuyObsidianRobot, state.clone());
-    }
-    if state.can_afford_geode_robot(blueprints) {
-        states_to_try.insert(Intent::BuyGeodeRobot, state.clone());
     }
     // max quality observed
     let mut max_quality = 0u32;
