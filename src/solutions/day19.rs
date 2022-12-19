@@ -1,3 +1,5 @@
+use std::cmp::max;
+
 use indexmap::IndexMap;
 use regex::Regex;
 
@@ -40,7 +42,7 @@ fn input() -> IndexMap<u32, RoboBlueprint> {
     result
 }
 
-#[derive(Eq, PartialEq, Clone)]
+#[derive(Eq, PartialEq, Clone, Debug)]
 struct RoboState {
     num_ore_robots: u32,
     num_clay_robots: u32,
@@ -57,7 +59,6 @@ struct RoboState {
 
     history: Vec<String>,
 }
-
 impl std::fmt::Display for RoboState {
     // fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     //     write!(f, "num_ore_robots: {},\nnum_clay_robots: {},\nnum_obsidian_robots: {},\nnum_geode_robots: {},\n\nnum_ore: {},\nnum_clay: {},\nnum_obsidian: {},\nnum_geodes: {},\n\nturns_remaining: {},\nblueprint_id: {},",
@@ -106,6 +107,19 @@ impl RoboState {
     fn can_afford_ore_robot(&self, blueprints: &IndexMap<u32, RoboBlueprint>) -> bool {
         self.num_ore >= blueprints[&self.blueprint_id].ore_robot_ore_cost
     }
+    fn needs_ore_robot(&self, blueprints: &IndexMap<u32, RoboBlueprint>) -> bool {
+        let max_ore = max(
+            blueprints[&self.blueprint_id].ore_robot_ore_cost,
+            max(
+                blueprints[&self.blueprint_id].clay_robot_ore_cost,
+                max(
+                    blueprints[&self.blueprint_id].obsidian_robot_ore_cost,
+                    blueprints[&self.blueprint_id].geode_robot_ore_cost,
+                ),
+            ),
+        );
+        self.num_ore_robots < max_ore
+    }
     fn buy_ore_robot(&mut self, blueprints: &IndexMap<u32, RoboBlueprint>) {
         self.num_ore -= blueprints[&self.blueprint_id].ore_robot_ore_cost;
         self.num_ore_robots += 1;
@@ -114,6 +128,9 @@ impl RoboState {
     }
     fn can_afford_clay_robot(&self, blueprints: &IndexMap<u32, RoboBlueprint>) -> bool {
         self.num_ore >= blueprints[&self.blueprint_id].clay_robot_ore_cost
+    }
+    fn needs_clay_robot(&self, blueprints: &IndexMap<u32, RoboBlueprint>) -> bool {
+        self.num_clay_robots < blueprints[&self.blueprint_id].obsidian_robot_clay_cost
     }
     fn buy_clay_robot(&mut self, blueprints: &IndexMap<u32, RoboBlueprint>) {
         self.num_ore -= blueprints[&self.blueprint_id].clay_robot_ore_cost;
@@ -124,6 +141,9 @@ impl RoboState {
     fn can_afford_obsidian_robot(&self, blueprints: &IndexMap<u32, RoboBlueprint>) -> bool {
         self.num_ore >= blueprints[&self.blueprint_id].obsidian_robot_ore_cost
             && self.num_clay >= blueprints[&self.blueprint_id].obsidian_robot_clay_cost
+    }
+    fn needs_obsidian_robot(&self, blueprints: &IndexMap<u32, RoboBlueprint>) -> bool {
+        self.num_obsidian_robots < blueprints[&self.blueprint_id].geode_robot_obsidian_cost
     }
     fn buy_obsidian_robot(&mut self, blueprints: &IndexMap<u32, RoboBlueprint>) {
         self.num_ore -= blueprints[&self.blueprint_id].obsidian_robot_ore_cost;
@@ -156,6 +176,9 @@ impl RoboState {
             self.num_obsidian += self.num_obsidian_robots;
             self.num_geodes += self.num_geode_robots;
             self.turns_remaining -= 1;
+            // if self.num_geodes > 9 {
+            //     println!("{:?}\n\n", self);
+            // }
         }
     }
 }
@@ -252,24 +275,28 @@ fn rate_state_quality(
             //     "BUYING GEODE BOT, Turns remaining... {}",
             //     next_state.turns_remaining
             // );
-            next_state.buy_geode_robot(blueprints);
+
             next_state.tick();
+            next_state.buy_geode_robot(blueprints);
+
             // if next_state.num_geode_robots > 1 {
             // states_to_try.insert(Intent::BuyGeodeRobot, next_state);
             // } else if next_state.turns_remaining <= *earliest_geode {
             // *earliest_geode = next_state.turns_remaining;
-            if next_state.num_geode_robots > 1 {
-                states_to_try.insert(Intent::BuyGeodeRobot, next_state);
-            } else if next_state.num_geode_robots == 1
-                && next_state.turns_remaining >= *earliest_geode
-            {
-                *earliest_geode = next_state.turns_remaining;
-                states_to_try.insert(Intent::BuyGeodeRobot, next_state);
-            }
+
+            // if next_state.num_geode_robots > 1 {
+            //     states_to_try.insert(Intent::BuyGeodeRobot, next_state);
+            // } else if next_state.num_geode_robots == 1
+            //     && next_state.turns_remaining >= *earliest_geode
+            // {
+            //     *earliest_geode = next_state.turns_remaining;
+            //     states_to_try.insert(Intent::BuyGeodeRobot, next_state);
+            // }
+            states_to_try.insert(Intent::BuyGeodeRobot, next_state);
             // }
         }
     }
-    if state.could_afford_obsidian_robot() {
+    if state.could_afford_obsidian_robot() && state.needs_obsidian_robot(blueprints) {
         let mut next_state = state.clone();
         while !next_state.can_afford_obsidian_robot(blueprints) && next_state.turns_remaining > 0 {
             next_state.tick();
@@ -279,19 +306,22 @@ fn rate_state_quality(
             //     "BUYING OBSIDIAN BOT, Turns remaining... {}",
             //     next_state.turns_remaining
             // );
-            next_state.buy_obsidian_robot(blueprints);
             next_state.tick();
-            if next_state.num_obsidian_robots > 1 {
-                states_to_try.insert(Intent::BuyObsidianRobot, next_state);
-            } else if next_state.num_obsidian_robots == 1
-                && next_state.turns_remaining >= *earliest_obsidian
-            {
-                *earliest_obsidian = next_state.turns_remaining;
-                states_to_try.insert(Intent::BuyObsidianRobot, next_state);
-            }
+            next_state.buy_obsidian_robot(blueprints);
+
+            // if next_state.num_obsidian_robots > 1 {
+            //     states_to_try.insert(Intent::BuyObsidianRobot, next_state);
+            // } else if next_state.num_obsidian_robots == 1
+            //     && next_state.turns_remaining >= *earliest_obsidian
+            // {
+            //     *earliest_obsidian = next_state.turns_remaining;
+            //     states_to_try.insert(Intent::BuyObsidianRobot, next_state);
+            // }
+
+            states_to_try.insert(Intent::BuyObsidianRobot, next_state);
         }
     }
-    {
+    if state.needs_clay_robot(blueprints) {
         let mut next_state = state.clone();
         while !next_state.can_afford_clay_robot(blueprints) && next_state.turns_remaining > 0 {
             next_state.tick();
@@ -301,19 +331,23 @@ fn rate_state_quality(
             //     "BUYING CLAY BOT, Turns remaining... {}",
             //     next_state.turns_remaining
             // );
-            next_state.buy_clay_robot(blueprints);
+
             next_state.tick();
-            if next_state.num_clay_robots > 1 {
-                states_to_try.insert(Intent::BuyClayRobot, next_state);
-            } else if next_state.num_clay_robots == 1
-                && next_state.turns_remaining >= *earliest_clay
-            {
-                *earliest_clay = next_state.turns_remaining;
-                states_to_try.insert(Intent::BuyClayRobot, next_state);
-            }
+            next_state.buy_clay_robot(blueprints);
+
+            // if next_state.num_clay_robots > 1 {
+            //     states_to_try.insert(Intent::BuyClayRobot, next_state);
+            // } else if next_state.num_clay_robots == 1
+            //     && next_state.turns_remaining >= *earliest_clay
+            // {
+            //     *earliest_clay = next_state.turns_remaining;
+            //     states_to_try.insert(Intent::BuyClayRobot, next_state);
+            // }
+
+            states_to_try.insert(Intent::BuyClayRobot, next_state);
         }
     }
-    {
+    if state.needs_ore_robot(blueprints) {
         let mut next_state = state.clone();
         while !next_state.can_afford_ore_robot(blueprints) && next_state.turns_remaining > 0 {
             next_state.tick();
@@ -323,6 +357,7 @@ fn rate_state_quality(
             //     "BUYING ORE BOT, Turns remaining... {}",
             //     next_state.turns_remaining
             // );
+            next_state.tick();
             next_state.buy_ore_robot(blueprints);
             states_to_try.insert(Intent::BuyOreRobot, next_state);
         }
@@ -334,7 +369,7 @@ fn rate_state_quality(
             next_state.tick();
         }
         // println!("Giving up, but I collected {}", next_state.num_geodes);
-        println!("NO OPTIONS\n{}", next_state);
+        // println!("NO OPTIONS\n{}", next_state);
         return next_state;
     }
     // max quality observed
