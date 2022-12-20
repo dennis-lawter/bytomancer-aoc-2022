@@ -69,6 +69,8 @@ fn main() {
         "d18s2" => solutions::day18::d18s2(submit),
         "d19s1" => solutions::day19::d19s1(submit),
         "d19s2" => solutions::day19::d19s2(submit),
+        "d20s1" => solutions::day20::d20s1(submit),
+        "d20s2" => solutions::day20::d20s2(submit),
 
         // REVISED APPROACHES
 
