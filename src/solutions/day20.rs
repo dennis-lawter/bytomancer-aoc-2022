@@ -21,18 +21,6 @@ struct Datagram {
     current_index: usize,
 }
 
-fn print_datagrams_in_order(datagrams: &Vec<Datagram>) {
-    print!("Datagrams: ");
-    for i in 0..datagrams.len() {
-        for find_me in datagrams.iter() {
-            if find_me.current_index == i {
-                print!("{}@{} ", find_me.number, i);
-            }
-        }
-    }
-    println!();
-}
-
 fn mix(datagrams: &mut Vec<Datagram>) {
     let datagrams_len = datagrams.len();
     let last_datagram_index = datagrams_len - 1;
@@ -82,14 +70,15 @@ pub fn d20s1(submit: bool) {
         datagrams.push(datagram);
     }
 
-    println!("Starting order:");
-    print_datagrams_in_order(&datagrams);
-    println!();
+    // println!("Starting order:");
+    // print_datagrams_in_order(&datagrams);
+    // println!();
+
     mix(&mut datagrams);
 
-    println!("FINAL RESULT:");
-    print_datagrams_in_order(&datagrams);
-    println!("\n\n");
+    // println!("FINAL RESULT:");
+    // print_datagrams_in_order(&datagrams);
+    // println!("\n\n");
 
     let mut zero_value_index = 0usize;
     for i in 0..datagrams.len() {
@@ -115,10 +104,10 @@ pub fn d20s1(submit: bool) {
             coord_three_value = datagrams.get(i).unwrap().number;
         }
     }
-    println!("zero_value_index: {:?}", zero_value_index);
-    println!("coord_one_value: {:?}", coord_one_value);
-    println!("coord_two_value: {:?}", coord_two_value);
-    println!("coord_three_value: {:?}", coord_three_value);
+    // println!("zero_value_index: {:?}", zero_value_index);
+    // println!("coord_one_value: {:?}", coord_one_value);
+    // println!("coord_two_value: {:?}", coord_two_value);
+    // println!("coord_three_value: {:?}", coord_three_value);
     let sum = coord_one_value + coord_two_value + coord_three_value;
 
     final_answer(sum, submit, DAY, 1);
@@ -127,6 +116,8 @@ pub fn d20s1(submit: bool) {
 const DECRYPTION_KEY: i64 = 811589153;
 
 pub fn d20s2(submit: bool) {
+    let input = input();
+
     let mut datagrams: Vec<Datagram> = Vec::with_capacity(input.len());
 
     for i in 0..input.len() {
@@ -137,16 +128,17 @@ pub fn d20s2(submit: bool) {
         datagrams.push(datagram);
     }
 
-    println!("Starting order:");
-    print_datagrams_in_order(&datagrams);
-    println!();
+    // println!("Starting order:");
+    // print_datagrams_in_order(&datagrams);
+    // println!();
+
     for _ in 0..10 {
         mix(&mut datagrams);
     }
 
-    println!("FINAL RESULT:");
-    print_datagrams_in_order(&datagrams);
-    println!("\n\n");
+    // println!("FINAL RESULT:");
+    // print_datagrams_in_order(&datagrams);
+    // println!("\n\n");
 
     let mut zero_value_index = 0usize;
     for i in 0..datagrams.len() {
@@ -172,10 +164,10 @@ pub fn d20s2(submit: bool) {
             coord_three_value = datagrams.get(i).unwrap().number;
         }
     }
-    println!("zero_value_index: {:?}", zero_value_index);
-    println!("coord_one_value: {:?}", coord_one_value);
-    println!("coord_two_value: {:?}", coord_two_value);
-    println!("coord_three_value: {:?}", coord_three_value);
+    // println!("zero_value_index: {:?}", zero_value_index);
+    // println!("coord_one_value: {:?}", coord_one_value);
+    // println!("coord_two_value: {:?}", coord_two_value);
+    // println!("coord_three_value: {:?}", coord_three_value);
     let sum = coord_one_value + coord_two_value + coord_three_value;
 
     final_answer(sum, submit, DAY, 2);
