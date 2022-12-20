@@ -1,5 +1,3 @@
-// use std::collections::HashSet;
-
 use super::final_answer;
 use super::input_raw;
 
@@ -20,7 +18,6 @@ fn input() -> Vec<i64> {
 #[derive(Debug)]
 struct Datagram {
     number: i64,
-    // original_index: usize,
     current_index: usize,
 }
 
@@ -36,18 +33,6 @@ fn print_datagrams_in_order(datagrams: &Vec<Datagram>) {
     println!();
 }
 
-// fn print_datagram_refs_in_order(datagrams: &Vec<&Datagram>) {
-//     print!("Datagram refs: ");
-//     for i in 0..datagrams.len() {
-//         for find_me in datagrams.iter() {
-//             if find_me.current_index == i {
-//                 print!("{} ", find_me.number);
-//             }
-//         }
-//     }
-//     println!();
-// }
-
 fn mix(datagrams: &mut Vec<Datagram>) {
     let datagrams_len = datagrams.len();
     let last_datagram_index = datagrams_len - 1;
@@ -58,23 +43,10 @@ fn mix(datagrams: &mut Vec<Datagram>) {
         }
         let starting_index = target.current_index;
         let mut moving_to_index = (starting_index as i64) + target.number;
-        // while moving_to_index <= 0 {
-        //     moving_to_index += last_datagram_index as i64;
-        // }
-        // while moving_to_index > last_datagram_index as i64 {
-        //     moving_to_index -= last_datagram_index as i64;
-        // }
         moving_to_index %= last_datagram_index as i64;
         if moving_to_index <= 0 {
             moving_to_index += last_datagram_index as i64;
         }
-        // if moving_to_index <= 0 {
-        //     moving_to_index = (last_datagram_index as i64) + moving_to_index;
-        //     // } else if moving_to_index > (last_datagram_index as i64) {
-        //     //     moving_to_index -= last_datagram_index as i64;
-        // }
-        // moving_to_index = moving_to_index % (datagrams_len as i64)
-        //     - (moving_to_index / (datagrams_len as i64) - 1);
         let moving_to_index = moving_to_index as usize;
         target.current_index = moving_to_index;
         for j in 0..datagrams_len {
@@ -94,58 +66,30 @@ fn mix(datagrams: &mut Vec<Datagram>) {
                 }
             }
         }
-
-        // println!("iter {}: ", i);
-        // println!("starting_index: {}", starting_index);
-        // println!("moving_to_index: {}", moving_to_index);
-        // print_datagrams_in_order(&datagrams);
-        // println!();
     }
 }
 
 pub fn d20s1(submit: bool) {
     let input = input();
-    // let mut check_unique: HashSet<i64> = HashSet::new();
-    // for line in input.iter() {
-    //     check_unique.insert(line.clone());
-    // }
-    // println!(" INPUT: {}\nUNIQUE: {}", input.len(), check_unique.len());
 
     let mut datagrams: Vec<Datagram> = Vec::with_capacity(input.len());
 
     for i in 0..input.len() {
         let datagram = Datagram {
             number: input[i],
-            // original_index: i,
             current_index: i,
         };
         datagrams.push(datagram);
     }
-    // let datagrams_len = datagrams.len();
-    // let last_datagram_index = datagrams_len - 1;
 
     println!("Starting order:");
     print_datagrams_in_order(&datagrams);
     println!();
     mix(&mut datagrams);
 
-    // println!("RESULT: {:?}", datagrams);
     println!("FINAL RESULT:");
     print_datagrams_in_order(&datagrams);
     println!("\n\n");
-    // println!("RESULT: {:?}", datagrams);
-
-    // let mut sorted_datagrams: Vec<&Datagram> = Vec::with_capacity(datagrams.len());
-    // for i in 0..datagrams_len {
-    //     for datagram in datagrams.iter() {
-    //         if datagram.current_index == i {
-    //             sorted_datagrams.insert(i, datagram);
-    //         }
-    //     }
-    // }
-
-    // println!("SORTED:");
-    // print_datagram_refs_in_order(&sorted_datagrams);
 
     let mut zero_value_index = 0usize;
     for i in 0..datagrams.len() {
@@ -183,19 +127,11 @@ pub fn d20s1(submit: bool) {
 const DECRYPTION_KEY: i64 = 811589153;
 
 pub fn d20s2(submit: bool) {
-    let input = input();
-    // let mut check_unique: HashSet<i64> = HashSet::new();
-    // for line in input.iter() {
-    //     check_unique.insert(line.clone());
-    // }
-    // println!(" INPUT: {}\nUNIQUE: {}", input.len(), check_unique.len());
-
     let mut datagrams: Vec<Datagram> = Vec::with_capacity(input.len());
 
     for i in 0..input.len() {
         let datagram = Datagram {
             number: input[i] * DECRYPTION_KEY,
-            // original_index: i,
             current_index: i,
         };
         datagrams.push(datagram);
@@ -208,23 +144,9 @@ pub fn d20s2(submit: bool) {
         mix(&mut datagrams);
     }
 
-    // println!("RESULT: {:?}", datagrams);
     println!("FINAL RESULT:");
     print_datagrams_in_order(&datagrams);
     println!("\n\n");
-    // println!("RESULT: {:?}", datagrams);
-
-    // let mut sorted_datagrams: Vec<&Datagram> = Vec::with_capacity(datagrams.len());
-    // for i in 0..datagrams_len {
-    //     for datagram in datagrams.iter() {
-    //         if datagram.current_index == i {
-    //             sorted_datagrams.insert(i, datagram);
-    //         }
-    //     }
-    // }
-
-    // println!("SORTED:");
-    // print_datagram_refs_in_order(&sorted_datagrams);
 
     let mut zero_value_index = 0usize;
     for i in 0..datagrams.len() {
