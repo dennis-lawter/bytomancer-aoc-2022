@@ -189,64 +189,7 @@ enum Intent {
     BuyClayRobot,
     BuyObsidianRobot,
     BuyGeodeRobot,
-    None,
 }
-
-// fn rate_state_quality(state: RoboState, blueprints: &IndexMap<u32, RoboBlueprint>) -> RoboState {
-//     // std::thread::sleep(core::time::Duration::from_millis(1000));
-//     // println!("Turns remaining... {}", state.turns_remaining);
-//     let mut states_to_try: IndexMap<Intent, RoboState> = IndexMap::new();
-//     // If turns remaining is 0, return num_geodes.
-//     if state.turns_remaining == 0 {
-//         return state;
-//     }
-//     // no matter what, always create a branch where I make nothing.
-//     states_to_try.insert(Intent::None, state.clone());
-//     // if I can afford a new robot, create a branch where I make it.
-//     if state.can_afford_geode_robot(blueprints) {
-//         // states_to_try.insert(Intent::BuyGeodeRobot, state.clone());
-//         // Always the best choice
-//         let mut next_state = state.clone();
-//         next_state.tick();
-//         next_state.buy_geode_robot(blueprints);
-//         return next_state;
-//     }
-//     if state.can_afford_ore_robot(blueprints) {
-//         states_to_try.insert(Intent::BuyOreRobot, state.clone());
-//     }
-//     if state.can_afford_clay_robot(blueprints) {
-//         states_to_try.insert(Intent::BuyClayRobot, state.clone());
-//     }
-//     if state.can_afford_obsidian_robot(blueprints) {
-//         states_to_try.insert(Intent::BuyObsidianRobot, state.clone());
-//     }
-//     // max quality observed
-//     let mut max_quality = 0u32;
-//     let mut best_state = state.clone();
-//     // per state...
-//     for (intent, next_state) in states_to_try.iter_mut() {
-//         // Robots collect their materials and decrement turn.
-//         // let mut next_state = next.clone();
-//         next_state.tick();
-//         // println!("Turns remaining... {}", next_state.turns_remaining);
-//         // Increase robots.
-//         match intent {
-//             Intent::BuyOreRobot => next_state.buy_ore_robot(blueprints),
-//             Intent::BuyClayRobot => next_state.buy_clay_robot(blueprints),
-//             Intent::BuyObsidianRobot => next_state.buy_obsidian_robot(blueprints),
-//             Intent::BuyGeodeRobot => next_state.buy_geode_robot(blueprints),
-//             Intent::None => {}
-//         }
-//         // rate each branch
-//         let state_assessment = rate_state_quality(next_state.clone(), blueprints);
-//         if state_assessment.num_geodes > max_quality {
-//             max_quality = state_assessment.num_geodes;
-//             best_state = state_assessment;
-//         }
-//     }
-
-//     best_state
-// }
 
 fn rate_state_quality(
     state: RoboState,
@@ -257,10 +200,7 @@ fn rate_state_quality(
 ) -> RoboState {
     // std::thread::sleep(core::time::Duration::from_millis(1000));
     // println!("STATE:\n{}", state);
-    // println!("Turns remaining... {}", state.turns_remaining);
-    // If turns remaining is 0, return num_geodes.
     if state.turns_remaining == 0 {
-        // println!("Exhausted, but I collected {}", state.num_geodes);
         // println!("EXHAUSTED\n{}", state);
         return state;
     }
@@ -279,21 +219,7 @@ fn rate_state_quality(
             next_state.tick();
             next_state.buy_geode_robot(blueprints);
 
-            // if next_state.num_geode_robots > 1 {
-            // states_to_try.insert(Intent::BuyGeodeRobot, next_state);
-            // } else if next_state.turns_remaining <= *earliest_geode {
-            // *earliest_geode = next_state.turns_remaining;
-
-            // if next_state.num_geode_robots > 1 {
-            //     states_to_try.insert(Intent::BuyGeodeRobot, next_state);
-            // } else if next_state.num_geode_robots == 1
-            //     && next_state.turns_remaining >= *earliest_geode
-            // {
-            //     *earliest_geode = next_state.turns_remaining;
-            //     states_to_try.insert(Intent::BuyGeodeRobot, next_state);
-            // }
             states_to_try.insert(Intent::BuyGeodeRobot, next_state);
-            // }
         }
     }
     if state.could_afford_obsidian_robot() && state.needs_obsidian_robot(blueprints) {
@@ -308,15 +234,6 @@ fn rate_state_quality(
             // );
             next_state.tick();
             next_state.buy_obsidian_robot(blueprints);
-
-            // if next_state.num_obsidian_robots > 1 {
-            //     states_to_try.insert(Intent::BuyObsidianRobot, next_state);
-            // } else if next_state.num_obsidian_robots == 1
-            //     && next_state.turns_remaining >= *earliest_obsidian
-            // {
-            //     *earliest_obsidian = next_state.turns_remaining;
-            //     states_to_try.insert(Intent::BuyObsidianRobot, next_state);
-            // }
 
             states_to_try.insert(Intent::BuyObsidianRobot, next_state);
         }
@@ -334,15 +251,6 @@ fn rate_state_quality(
 
             next_state.tick();
             next_state.buy_clay_robot(blueprints);
-
-            // if next_state.num_clay_robots > 1 {
-            //     states_to_try.insert(Intent::BuyClayRobot, next_state);
-            // } else if next_state.num_clay_robots == 1
-            //     && next_state.turns_remaining >= *earliest_clay
-            // {
-            //     *earliest_clay = next_state.turns_remaining;
-            //     states_to_try.insert(Intent::BuyClayRobot, next_state);
-            // }
 
             states_to_try.insert(Intent::BuyClayRobot, next_state);
         }
@@ -376,15 +284,6 @@ fn rate_state_quality(
     let mut max_quality = 0u32;
     let mut best_state = state.clone();
     for (_intent, next_state) in states_to_try.iter_mut() {
-        // print!("{:?}\n", intent);
-        // if next_state.turns_remaining == state.turns_remaining {
-        //     println!("STATE:\n{}\n\n\nNEXT_STATE:\n{}\n\n\n", state, next_state);
-        // }
-        // if *next_state == state {
-        //     println!("STATE:\n{}\n\n\nNEXT_STATE:\n{}\n\n\n", state, next_state);
-        //     panic!("WTF??");
-        // }
-        // if next_state.turns_remaining > 0 {
         let state_assessment = rate_state_quality(
             next_state.clone(),
             blueprints,
@@ -396,14 +295,7 @@ fn rate_state_quality(
             max_quality = state_assessment.num_geodes;
             best_state = state_assessment;
         }
-        // } else {
-        //     if next_state.num_geodes > max_quality {
-        //         max_quality = next_state.num_geodes;
-        //         best_state = next_state.clone();
-        //     }
-        // }
     }
-    // println!();
 
     best_state
 }
@@ -463,6 +355,6 @@ pub fn d19s2(submit: bool) {
         println!("STATE:\n{}", best_state);
         answers.push(best_state.num_geodes);
     }
-    let answer = answers[0] * answers[1] * answers[2];
+    let answer = answers[0] * answers[1] * answers.get(2).or(Some(&1u32)).unwrap();
     final_answer(answer, submit, DAY, 2);
 }

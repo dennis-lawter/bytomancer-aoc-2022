@@ -23,7 +23,7 @@ fn input() -> Board {
     let mut starting_pos = (0usize, 0usize);
     let mut ending_pos = (0usize, 0usize);
     for i in 0..height {
-        let map_row: Vec<u8> = lines[i]
+        let mut map_row: Vec<u8> = lines[i]
             .bytes()
             .map(|cur_char| match cur_char {
                 69u8 => 27u8,
@@ -36,8 +36,12 @@ fn input() -> Board {
             if map_row[j] == 0 {
                 starting_pos = (j, i);
                 exp_row[j] = true;
+                //whoops
+                map_row[j] = 1;
             } else if map_row[j] == 27 {
                 ending_pos = (j, i);
+                //whoops
+                map_row[j] = 26;
             }
         }
         map.push(map_row);
