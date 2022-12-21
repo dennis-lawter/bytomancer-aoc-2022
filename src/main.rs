@@ -1,12 +1,25 @@
 use colored::Colorize;
-use std::env;
+use std::{env, io::Write};
 
 mod input;
 mod solutions;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let func = args.get(1).expect("Must provide a runtime argument.");
+    let func: String;
+    let func_option = args.get(1);
+    if let Some(cli_func) = func_option {
+        func = cli_func.clone();
+    } else {
+        println!();
+        let prompt = String::from("Enter the function you'd like to run").on_green();
+        print!("{}", prompt);
+        print!(" ");
+        std::io::stdout().flush().unwrap();
+        let mut buffer = String::new();
+        std::io::Stdin::read_line(&std::io::stdin(), &mut buffer).unwrap();
+        func = buffer.trim().to_owned();
+    }
     let mut submit = false;
     match args.get(2) {
         Some(arg) => {
