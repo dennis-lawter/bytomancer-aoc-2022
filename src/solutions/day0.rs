@@ -12,10 +12,10 @@ fn input() -> Vec<String> {
 
 pub fn d00s1(submit: bool) {
     let input = input();
-    final_answer(input.len(), submit, DAY, 1);
+    final_answer("NaN", submit, DAY, 1);
 }
 
 pub fn d00s2(submit: bool) {
     let input = input();
-    final_answer(input.len(), submit, DAY, 2);
+    final_answer("NaN", submit, DAY, 2);
 }
