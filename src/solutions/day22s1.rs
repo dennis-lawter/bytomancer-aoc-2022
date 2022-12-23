@@ -276,8 +276,3 @@ pub fn d22s1(submit: bool) {
 
     final_answer(answer, submit, DAY, 1);
 }
-
-pub fn d22s2(submit: bool) {
-    let input = input();
-    final_answer("NaN", submit, DAY, 2);
-}
