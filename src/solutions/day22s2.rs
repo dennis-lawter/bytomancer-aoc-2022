@@ -323,9 +323,9 @@ impl Point2D {
     fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-    fn as_tuple(&self) -> (i32, i32) {
-        (self.x, self.y)
-    }
+    // fn as_tuple(&self) -> (i32, i32) {
+    //     (self.x, self.y)
+    // }
 }
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 struct Point3D {
@@ -338,18 +338,18 @@ impl Point3D {
     fn new(x: i32, y: i32, z: i32) -> Self {
         Self { x, y, z }
     }
-    fn as_tuple(&self) -> (i32, i32, i32) {
-        (self.x, self.y, self.z)
-    }
+    // fn as_tuple(&self) -> (i32, i32, i32) {
+    //     (self.x, self.y, self.z)
+    // }
 }
 
 #[derive(Debug)]
 struct Game {
     flat_map: IndexMap<Point2D, Tile>,
-    flat_x_bound: usize,
-    flat_y_bound: usize,
+    // flat_x_bound: usize,
+    // flat_y_bound: usize,
     cube_map: IndexMap<Point3D, Point2D>,
-    cube_width: usize,
+    // cube_width: usize,
     player: Cursor3D,
     directions: String,
 }
@@ -560,10 +560,10 @@ fn input() -> Game {
 
     Game {
         flat_map,
-        flat_x_bound,
-        flat_y_bound,
+        // flat_x_bound,
+        // flat_y_bound,
         cube_map,
-        cube_width,
+        // cube_width,
         player,
         directions,
     }
